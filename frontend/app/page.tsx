@@ -219,7 +219,6 @@ export default function Home() {
           </div>
         </div>
       </main>
-
       {/* Footer */}
       <footer className="bg-white border-t mt-16">
         <div className="max-w-6xl mx-auto px-4 py-8 text-center text-gray-600">
