@@ -117,3 +117,38 @@ export const removeToken = () => {
 export const isAuthenticated = (): boolean => {
   return getToken() !== null;
 };
+
+/**
+ * UPDATE PROFILE - Cập nhật tên và email
+ */
+export const updateProfile = async (token: string, data: { fullName?: string; email?: string }) => {
+  const response = await fetch(`${API_URL}/auth/profile`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  return response.json();
+};
+
+/**
+ * UPDATE PASSWORD - Cập nhật mật khẩu
+ */
+export const updatePassword = async (
+  token: string,
+  data: { currentPassword: string; newPassword: string; confirmPassword: string }
+) => {
+  const response = await fetch(`${API_URL}/auth/password`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  return response.json();
+};
