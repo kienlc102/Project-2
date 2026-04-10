@@ -10,7 +10,8 @@ const pool = new Pool({
   },
 });
 
-pool.on('error', (err) => {
+// Đã fix lỗi TS7006: Khai báo rõ kiểu dữ liệu cho 'err' là 'Error'
+pool.on('error', (err: Error) => {
   console.error('Unexpected error on idle client', err);
 });
 

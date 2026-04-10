@@ -181,43 +181,6 @@ export default function Home() {
             </div>
           </div>
         </div>
-
-        {/* API Documentation */}
-        <div className="mt-16 bg-white rounded-lg shadow-lg p-8">
-          <h3 className="text-2xl font-bold text-gray-800 mb-6">API Documentation</h3>
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h4 className="font-bold text-indigo-600 mb-2">POST /api/auth/signup</h4>
-              <p className="text-sm text-gray-600 mb-3">Đăng ký tài khoản mới</p>
-              <code className="text-xs bg-gray-100 p-2 rounded block">
-                {JSON.stringify({
-                  email: "user@example.com",
-                  password: "password123",
-                  fullName: "John Doe"
-                }, null, 2)}
-              </code>
-            </div>
-
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h4 className="font-bold text-indigo-600 mb-2">POST /api/auth/login</h4>
-              <p className="text-sm text-gray-600 mb-3">Đăng nhập</p>
-              <code className="text-xs bg-gray-100 p-2 rounded block">
-                {JSON.stringify({
-                  email: "user@example.com",
-                  password: "password123"
-                }, null, 2)}
-              </code>
-            </div>
-
-            <div className="border border-gray-200 rounded-lg p-4">
-              <h4 className="font-bold text-indigo-600 mb-2">POST /api/auth/logout</h4>
-              <p className="text-sm text-gray-600 mb-3">Đăng xuất (cần token)</p>
-              <code className="text-xs bg-gray-100 p-2 rounded block">
-                Authorization: Bearer {'<token>'}
-              </code>
-            </div>
-          </div>
-        </div>
       </main>
 
       {/* Footer */}

@@ -117,3 +117,84 @@ export const removeToken = () => {
 export const isAuthenticated = (): boolean => {
   return getToken() !== null;
 };
+
+/**
+ * UPDATE PROFILE - Cập nhật tên và email
+ */
+export const updateProfile = async (token: string, data: { fullName?: string; email?: string }) => {
+  const response = await fetch(`${API_URL}/auth/profile`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  return response.json();
+};
+
+/**
+ * UPDATE PASSWORD - Cập nhật mật khẩu
+ */
+export const updatePassword = async (
+  token: string,
+  data: { currentPassword: string; newPassword: string; confirmPassword: string }
+) => {
+  const response = await fetch(`${API_URL}/auth/password`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+
+  return response.json();
+};
+
+/**
+ * DELETE ACCOUNT - Xóa tài khoản
+ */
+export const deleteAccount = async (token: string, password: string) => {
+  const response = await fetch(`${API_URL}/auth/profile`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ password }),
+  });
+
+  return response.json();
+};
+
+/**
+ * SEND EMAIL VERIFICATION CODE - Gửi mã xác thực email
+ */
+export const sendEmailVerificationCode = async (email: string) => {
+  const response = await fetch(`${API_URL}/auth/email/send-code`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email }),
+  });
+
+  return response.json();
+};
+
+/**
+ * VERIFY EMAIL CODE - Xác thực email bằng mã
+ */
+export const verifyEmailCode = async (email: string, code: string) => {
+  const response = await fetch(`${API_URL}/auth/email/verify`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, code }),
+  });
+
+  return response.json();
+};
