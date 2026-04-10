@@ -25,10 +25,7 @@ export default function SignupPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
     setError('');
   };
 
@@ -36,35 +33,16 @@ export default function SignupPage() {
     e.preventDefault();
     setError('');
 
-    // Validation
-    if (!formData.fullName.trim()) {
-      setError('Vui lòng nhập tên đầy đủ');
-      return;
-    }
-
-    if (!formData.email.trim()) {
-      setError('Vui lòng nhập email');
-      return;
-    }
-
+    if (!formData.fullName.trim()) return setError('Vui lòng nhập tên đầy đủ');
+    if (!formData.email.trim()) return setError('Vui lòng nhập email');
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      setError('Email không hợp lệ');
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      setError('Mật khẩu phải có ít nhất 6 ký tự');
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      setError('Mật khẩu xác nhận không khớp');
-      return;
-    }
+    if (!emailRegex.test(formData.email)) return setError('Email không hợp lệ');
+    if (formData.password.length < 6) return setError('Mật khẩu phải có ít nhất 6 ký tự');
+    if (formData.password !== formData.confirmPassword) return setError('Mật khẩu xác nhận không khớp');
 
     setLoading(true);
     try {
+      // 1. Lưu user vào DB
       const response = await signup({
         fullName: formData.fullName,
         email: formData.email,
@@ -72,16 +50,15 @@ export default function SignupPage() {
       });
 
       if (response.success) {
-        // User created, now send verification code
-        setVerificationEmail(formData.email);
-        setStep('verification');
-        
-        // Send verification code
+        // 2. GỌI API GỬI EMAIL TRƯỚC KHI CHUYỂN TRANG
         const codeResponse = await sendEmailVerificationCode(formData.email);
+        
         if (codeResponse.success) {
-          setCodeTimer(180); // 3 minutes
+          // 3. Gửi mail thành công mới hiện form nhập mã và đếm ngược
+          setVerificationEmail(formData.email);
+          setStep('verification');
+          setCodeTimer(180); // 3 phút
           
-          // Countdown timer
           const interval = setInterval(() => {
             setCodeTimer((prev) => {
               if (prev <= 1) {
@@ -92,14 +69,13 @@ export default function SignupPage() {
             });
           }, 1000);
         } else {
-          setVerificationError(codeResponse.message || 'Lỗi gửi mã xác thực');
+          setError(codeResponse.message || 'Lỗi hệ thống gửi mail. Hãy kiểm tra lại cấu hình SMTP.');
         }
       } else {
         setError(response.message || 'Đăng ký thất bại');
       }
     } catch (err) {
       setError('Lỗi đăng ký. Vui lòng thử lại.');
-      console.error('Signup error:', err);
     } finally {
       setLoading(false);
     }
@@ -107,7 +83,7 @@ export default function SignupPage() {
 
   const handleVerifyCode = async () => {
     if (!verificationCode || verificationCode.length !== 8) {
-      setVerificationError('Vui lòng nhập mã 8 chữ số');
+      setVerificationError('Vui lòng nhập đủ 8 chữ số');
       return;
     }
 
@@ -116,7 +92,6 @@ export default function SignupPage() {
     try {
       const response = await verifyEmailCode(verificationEmail, verificationCode);
       if (response.success) {
-        // Email verified successfully
         setStep('form');
         router.push('/login');
       } else {
@@ -124,7 +99,6 @@ export default function SignupPage() {
       }
     } catch (err) {
       setVerificationError('Lỗi xác thực email. Vui lòng thử lại.');
-      console.error('Verification error:', err);
     } finally {
       setVerificationLoading(false);
     }
@@ -135,7 +109,6 @@ export default function SignupPage() {
     setVerificationCode('');
     setVerificationError('');
     setCodeTimer(0);
-    setVerificationEmail('');
   };
 
   if (step === 'verification') {
@@ -174,11 +147,12 @@ export default function SignupPage() {
               </label>
               <input
                 type="text"
+                inputMode="numeric"
                 value={verificationCode}
-                onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                onChange={(e) => setVerificationCode(e.target.value.replace(/[^0-9]/g, '').slice(0, 8))}
                 placeholder="00000000"
-                maxLength="8"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-center font-mono text-lg"
+                maxLength={8}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-center font-mono text-lg tracking-widest"
                 disabled={verificationLoading}
               />
             </div>
@@ -199,13 +173,6 @@ export default function SignupPage() {
               Quay lại
             </button>
           </div>
-
-          <p className="text-center text-gray-600 text-sm mt-4">
-            Đã có tài khoản?{' '}
-            <Link href="/login" className="text-indigo-600 hover:underline font-semibold">
-              Đăng nhập
-            </Link>
-          </p>
         </div>
       </div>
     );
@@ -225,9 +192,7 @@ export default function SignupPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Tên đầy đủ
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Tên đầy đủ</label>
             <input
               type="text"
               name="fullName"
@@ -240,9 +205,7 @@ export default function SignupPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
             <input
               type="email"
               name="email"
@@ -255,9 +218,7 @@ export default function SignupPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Mật khẩu
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Mật khẩu</label>
             <input
               type="password"
               name="password"
@@ -270,9 +231,7 @@ export default function SignupPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Xác nhận mật khẩu
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Xác nhận mật khẩu</label>
             <input
               type="password"
               name="confirmPassword"

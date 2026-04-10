@@ -9,62 +9,54 @@ const router = Router();
 /**
  * API: SIGNUP - Đăng ký tài khoản mới
  * POST /api/auth/signup
- * Body: { email, password, fullName }
  */
 router.post('/signup', async (req: AuthRequest, res: Response) => {
   try {
     const { email, password, fullName } = req.body;
 
-    // Validation
     if (!email || !password || !fullName) {
-      return res.status(400).json({
-        success: false,
-        message: 'Vui lòng nhập đầy đủ email, mật khẩu và tên',
-      });
+      return res.status(400).json({ success: false, message: 'Vui lòng nhập đầy đủ thông tin' });
     }
 
-    // Kiểm tra email đã tồn tại
-    const result = await query('SELECT id FROM public.users WHERE email = $1', [
-      email,
-    ]);
-
-    if (result.rows.length > 0) {
-      return res.status(409).json({
-        success: false,
-        message: 'Email đã được đăng ký',
-      });
-    }
-
-    // Hash mật khẩu
     const passwordHash = await hashPassword(password);
 
-    // Tạo user mới (chưa xác minh email)
+    // KIỂM TRA EMAIL
+    const result = await query('SELECT id, is_verified, is_email_verified FROM public.users WHERE email = $1', [email]);
+
+    if (result.rows.length > 0) {
+      const user = result.rows[0];
+      if (user.is_verified || user.is_email_verified) {
+        // Nếu đã xác thực -> Chặn luôn
+        return res.status(409).json({ success: false, message: 'Email đã được đăng ký và xác thực' });
+      } else {
+        // Đã tạo nhưng CHƯA xác thực (Do lần trước bỏ dở) -> Cập nhật lại pass/name và cho đi tiếp
+        await query(
+          'UPDATE public.users SET password_hash = $1, full_name = $2 WHERE email = $3',
+          [passwordHash, fullName, email]
+        );
+        return res.status(200).json({
+          success: true,
+          message: 'Tài khoản đang chờ xác thực.',
+          data: { user: { id: user.id, email, fullName } },
+        });
+      }
+    }
+
+    // Nếu chưa tồn tại -> Tạo mới
     const insertResult = await query(
       `INSERT INTO public.users (email, password_hash, full_name, is_verified, created_at)
-       VALUES ($1, $2, $3, $4, NOW())
-       RETURNING id, email, full_name`,
+       VALUES ($1, $2, $3, $4, NOW()) RETURNING id, email, full_name`,
       [email, passwordHash, fullName, false]
     );
 
-    const user = insertResult.rows[0];
-
     return res.status(201).json({
       success: true,
-      message: 'Tài khoản đã được tạo. Vui lòng xác thực email của bạn',
-      data: {
-        user: {
-          id: user.id,
-          email: user.email,
-          fullName: user.full_name,
-        },
-      },
+      message: 'Tài khoản đã được tạo. Vui lòng xác thực.',
+      data: { user: insertResult.rows[0] },
     });
   } catch (error) {
     console.error('Signup error:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Lỗi đăng ký tài khoản',
-    });
+    return res.status(500).json({ success: false, message: 'Lỗi đăng ký tài khoản' });
   }
 });
 
@@ -638,7 +630,8 @@ router.post('/email/verify', async (req: AuthRequest, res: Response) => {
     // Code is correct - mark email as verified
     await query(
       `UPDATE public.users 
-       SET is_email_verified = true, 
+       SET is_email_verified = true,
+           is_verified = true,
            email_verification_code = NULL,
            email_code_expires_at = NULL,
            email_verification_attempts = 0
