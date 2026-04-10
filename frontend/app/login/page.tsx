@@ -60,7 +60,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-green-50 px-4">
       <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
         <h1 className="text-3xl font-bold text-center mb-2 text-gray-800">Đăng nhập</h1>
         <p className="text-center text-gray-600 mb-6">Đăng nhập để tiếp tục</p>
@@ -81,7 +81,7 @@ export default function LoginPage() {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="your@email.com"
               disabled={loading}
             />
@@ -96,7 +96,7 @@ export default function LoginPage() {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Nhập mật khẩu của bạn"
               disabled={loading}
             />
@@ -105,7 +105,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white font-semibold py-2 rounded-lg transition duration-200"
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-2 rounded-lg transition duration-200"
           >
             {loading ? 'Đang xử lý...' : 'Đăng nhập'}
           </button>
@@ -113,7 +113,7 @@ export default function LoginPage() {
 
         <p className="text-center text-gray-600 text-sm mt-4">
           Chưa có tài khoản?{' '}
-          <Link href="/signup" className="text-indigo-600 hover:underline font-semibold">
+          <Link href="/signup" className="text-blue-600 hover:underline font-semibold">
             Đăng ký
           </Link>
         </p>

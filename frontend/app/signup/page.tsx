@@ -113,7 +113,7 @@ export default function SignupPage() {
 
   if (step === 'verification') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-green-50 px-4">
         <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
           <div className="flex items-center justify-center mb-6">
             <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
@@ -160,7 +160,7 @@ export default function SignupPage() {
             <button
               onClick={handleVerifyCode}
               disabled={verificationLoading || verificationCode.length !== 8}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white font-semibold py-2 rounded-lg transition duration-200"
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-2 rounded-lg transition duration-200"
             >
               {verificationLoading ? 'Đang xác thực...' : 'Xác thực Email'}
             </button>
@@ -179,7 +179,7 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-green-50 px-4">
       <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
         <h1 className="text-3xl font-bold text-center mb-2 text-gray-800">Đăng ký</h1>
         <p className="text-center text-gray-600 mb-6">Tạo tài khoản mới để bắt đầu</p>
@@ -198,7 +198,7 @@ export default function SignupPage() {
               name="fullName"
               value={formData.fullName}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Nhập tên của bạn"
               disabled={loading}
             />
@@ -211,7 +211,7 @@ export default function SignupPage() {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="your@email.com"
               disabled={loading}
             />
@@ -224,7 +224,7 @@ export default function SignupPage() {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Ít nhất 6 ký tự"
               disabled={loading}
             />
@@ -237,7 +237,7 @@ export default function SignupPage() {
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Nhập lại mật khẩu"
               disabled={loading}
             />
@@ -246,7 +246,7 @@ export default function SignupPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white font-semibold py-2 rounded-lg transition duration-200"
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-2 rounded-lg transition duration-200"
           >
             {loading ? 'Đang xử lý...' : 'Đăng ký'}
           </button>
@@ -254,7 +254,7 @@ export default function SignupPage() {
 
         <p className="text-center text-gray-600 text-sm mt-4">
           Đã có tài khoản?{' '}
-          <Link href="/login" className="text-indigo-600 hover:underline font-semibold">
+          <Link href="/login" className="text-blue-600 hover:underline font-semibold">
             Đăng nhập
           </Link>
         </p>
