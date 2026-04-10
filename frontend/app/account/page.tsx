@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getProfile, logout, getToken, removeToken, updateProfile, updatePassword, deleteAccount } from '@/lib/auth';
-import { LogOut, User, Check, X, Trash2 } from 'lucide-react';
+import { LogOut, User, Check, X, Trash2, ArrowLeft } from 'lucide-react';
 
 interface UserProfile {
   id: number;
@@ -222,7 +222,7 @@ export default function AccountPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-green-50">
         <div className="text-gray-600 text-lg">Đang tải...</div>
       </div>
     );
@@ -230,7 +230,7 @@ export default function AccountPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-green-50 px-4">
         <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
           <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded">
             {error}
@@ -242,7 +242,7 @@ export default function AccountPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-green-50">
         <div className="text-gray-600 text-lg">Không tìm thấy thông tin user</div>
       </div>
     );
@@ -259,13 +259,13 @@ export default function AccountPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 px-4 py-8">
       <div className="max-w-3xl mx-auto space-y-6">
         {/* Header Card */}
         <div className="bg-white rounded-lg shadow-lg p-8">
           <div className="flex items-center justify-between mb-0">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-indigo-600 rounded-full flex items-center justify-center">
+              <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center">
                 <User className="w-8 h-8 text-white" />
               </div>
               <div>
@@ -273,13 +273,22 @@ export default function AccountPage() {
                 <p className="text-gray-600">Quản lý thông tin tài khoản</p>
               </div>
             </div>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition duration-200"
-            >
-              <LogOut className="w-5 h-5" />
-              <span>Đăng xuất</span>
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => router.push('/')}
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition duration-200"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                <span>Trang chủ</span>
+              </button>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition duration-200"
+              >
+                <LogOut className="w-5 h-5" />
+                <span>Đăng xuất</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -309,13 +318,13 @@ export default function AccountPage() {
                 value={newFullName}
                 onChange={(e) => setNewFullName(e.target.value)}
                 placeholder="Nhập họ và tên"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <div className="flex gap-2">
                 <button
                   onClick={handleUpdateFullName}
                   disabled={updatingFullName}
-                  className="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition duration-200 disabled:opacity-50"
+                  className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition duration-200 disabled:opacity-50"
                 >
                   {updatingFullName ? 'Đang cập nhật...' : 'Lưu'}
                 </button>
@@ -376,13 +385,13 @@ export default function AccountPage() {
                 value={newEmail}
                 onChange={(e) => setNewEmail(e.target.value)}
                 placeholder="Nhập email mới"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <div className="flex gap-2">
                 <button
                   onClick={handleUpdateEmail}
                   disabled={updatingEmail}
-                  className="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition duration-200 disabled:opacity-50"
+                  className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition duration-200 disabled:opacity-50"
                 >
                   {updatingEmail ? 'Đang cập nhật...' : 'Lưu'}
                 </button>
@@ -443,27 +452,27 @@ export default function AccountPage() {
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 placeholder="Mật khẩu hiện tại"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <input
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="Mật khẩu mới"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <input
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Xác nhận mật khẩu mới"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <div className="flex gap-2">
                 <button
                   onClick={handleUpdatePassword}
                   disabled={updatingPassword}
-                  className="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition duration-200 disabled:opacity-50"
+                  className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition duration-200 disabled:opacity-50"
                 >
                   {updatingPassword ? 'Đang cập nhật...' : 'Lưu'}
                 </button>

@@ -3,13 +3,14 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getToken, removeToken } from '@/lib/auth';
-import { LogIn, LogOut, UserPlus, User } from 'lucide-react';
+import { LogIn, LogOut, UserPlus, User, Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const token = getToken();
@@ -23,6 +24,14 @@ export default function Home() {
     router.push('/login');
   };
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      // TODO: Implement search navigation/logic
+      console.log('Search:', searchQuery);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -32,17 +41,34 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50">
       {/* Navigation */}
       <nav className="bg-white shadow-md">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-indigo-600">MyApp</h1>
-          <div className="flex items-center gap-4">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+          <h1 className="text-2xl font-bold text-blue-600 flex-shrink-0">MyApp</h1>
+
+          {/* Search Bar */}
+          {isAuthenticated && (
+            <form onSubmit={handleSearch} className="flex-1 max-w-md mx-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Tìm kiếm..."
+                  className="w-full pl-10 pr-4 py-2 bg-gray-100 border border-gray-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
+                />
+              </div>
+            </form>
+          )}
+
+          <div className="flex items-center gap-3 flex-shrink-0">
             {isAuthenticated ? (
               <>
                 <Link
                   href="/account"
-                  className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-indigo-600 transition"
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
                 >
                   <User className="w-5 h-5" />
                   <span>Hồ sơ</span>
@@ -59,14 +85,14 @@ export default function Home() {
               <>
                 <Link
                   href="/login"
-                  className="flex items-center gap-2 px-4 py-2 text-indigo-600 border border-indigo-600 rounded-lg hover:bg-indigo-50 transition"
+                  className="flex items-center gap-2 px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition"
                 >
                   <LogIn className="w-5 h-5" />
                   <span>Đăng nhập</span>
                 </Link>
                 <Link
                   href="/signup"
-                  className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition"
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
                 >
                   <UserPlus className="w-5 h-5" />
                   <span>Đăng ký</span>
@@ -94,34 +120,14 @@ export default function Home() {
                 <p className="text-lg text-green-600 font-semibold">
                   ✓ Bạn đã đăng nhập thành công!
                 </p>
-                <div className="flex gap-4">
-                  <Link
-                    href="/account"
-                    className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold transition"
-                  >
-                    Xem Hồ sơ
-                  </Link>
-                  <button
-                    onClick={handleLogout}
-                    className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition"
-                  >
-                    Đăng xuất
-                  </button>
-                </div>
               </div>
             ) : (
               <div className="flex gap-4">
                 <Link
                   href="/signup"
-                  className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold transition"
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition"
                 >
                   Tạo tài khoản
-                </Link>
-                <Link
-                  href="/login"
-                  className="px-6 py-3 bg-white hover:bg-gray-100 text-indigo-600 border-2 border-indigo-600 rounded-lg font-semibold transition"
-                >
-                  Đăng nhập
                 </Link>
               </div>
             )}
@@ -156,7 +162,7 @@ export default function Home() {
               </div>
 
               <div className="flex gap-4">
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
                   <span className="text-2xl">👥</span>
                 </div>
                 <div>
@@ -168,7 +174,7 @@ export default function Home() {
               </div>
 
               <div className="flex gap-4">
-                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 bg-green-50 rounded-lg flex items-center justify-center flex-shrink-0">
                   <span className="text-2xl">💬</span>
                 </div>
                 <div>
