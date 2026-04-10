@@ -3,12 +3,19 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { signup, saveToken } from '@/lib/auth';
+import { signup, sendEmailVerificationCode, verifyEmailCode } from '@/lib/auth';
+import { Mail, Check, X } from 'lucide-react';
 
 export default function SignupPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [step, setStep] = useState<'form' | 'verification'>('form');
+  const [verificationEmail, setVerificationEmail] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
+  const [verificationLoading, setVerificationLoading] = useState(false);
+  const [verificationError, setVerificationError] = useState('');
+  const [codeTimer, setCodeTimer] = useState(0);
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -64,9 +71,29 @@ export default function SignupPage() {
         password: formData.password,
       });
 
-      if (response.success && response.data?.token) {
-        saveToken(response.data.token);
-        router.push('/');
+      if (response.success) {
+        // User created, now send verification code
+        setVerificationEmail(formData.email);
+        setStep('verification');
+        
+        // Send verification code
+        const codeResponse = await sendEmailVerificationCode(formData.email);
+        if (codeResponse.success) {
+          setCodeTimer(180); // 3 minutes
+          
+          // Countdown timer
+          const interval = setInterval(() => {
+            setCodeTimer((prev) => {
+              if (prev <= 1) {
+                clearInterval(interval);
+                return 0;
+              }
+              return prev - 1;
+            });
+          }, 1000);
+        } else {
+          setVerificationError(codeResponse.message || 'Lỗi gửi mã xác thực');
+        }
       } else {
         setError(response.message || 'Đăng ký thất bại');
       }
@@ -77,6 +104,112 @@ export default function SignupPage() {
       setLoading(false);
     }
   };
+
+  const handleVerifyCode = async () => {
+    if (!verificationCode || verificationCode.length !== 8) {
+      setVerificationError('Vui lòng nhập mã 8 chữ số');
+      return;
+    }
+
+    setVerificationLoading(true);
+    setVerificationError('');
+    try {
+      const response = await verifyEmailCode(verificationEmail, verificationCode);
+      if (response.success) {
+        // Email verified successfully
+        setStep('form');
+        router.push('/login');
+      } else {
+        setVerificationError(response.message || 'Xác thực email thất bại');
+      }
+    } catch (err) {
+      setVerificationError('Lỗi xác thực email. Vui lòng thử lại.');
+      console.error('Verification error:', err);
+    } finally {
+      setVerificationLoading(false);
+    }
+  };
+
+  const handleBackToForm = () => {
+    setStep('form');
+    setVerificationCode('');
+    setVerificationError('');
+    setCodeTimer(0);
+    setVerificationEmail('');
+  };
+
+  if (step === 'verification') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
+        <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
+          <div className="flex items-center justify-center mb-6">
+            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+              <Mail className="w-6 h-6 text-blue-600" />
+            </div>
+          </div>
+          
+          <h1 className="text-3xl font-bold text-center mb-2 text-gray-800">Xác thực Email</h1>
+          <p className="text-center text-gray-600 mb-6">Nhập mã xác thực đã được gửi đến email của bạn</p>
+
+          {verificationError && (
+            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded flex items-center gap-2">
+              <X className="w-5 h-5" />
+              {verificationError}
+            </div>
+          )}
+
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800">
+              Email: <strong>{verificationEmail}</strong>
+            </p>
+            <p className="text-xs text-blue-600 mt-2">
+              Hết hạn trong: <strong>{Math.floor(codeTimer / 60)}:{(codeTimer % 60).toString().padStart(2, '0')}</strong>
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Mã xác thực (8 chữ số)
+              </label>
+              <input
+                type="text"
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                placeholder="00000000"
+                maxLength="8"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-center font-mono text-lg"
+                disabled={verificationLoading}
+              />
+            </div>
+
+            <button
+              onClick={handleVerifyCode}
+              disabled={verificationLoading || verificationCode.length !== 8}
+              className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white font-semibold py-2 rounded-lg transition duration-200"
+            >
+              {verificationLoading ? 'Đang xác thực...' : 'Xác thực Email'}
+            </button>
+
+            <button
+              onClick={handleBackToForm}
+              disabled={verificationLoading}
+              className="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 rounded-lg transition duration-200"
+            >
+              Quay lại
+            </button>
+          </div>
+
+          <p className="text-center text-gray-600 text-sm mt-4">
+            Đã có tài khoản?{' '}
+            <Link href="/login" className="text-indigo-600 hover:underline font-semibold">
+              Đăng nhập
+            </Link>
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">

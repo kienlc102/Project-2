@@ -26,7 +26,12 @@ CREATE TABLE public.users (
     full_name character varying(255),
     is_verified boolean NOT NULL,
     provider character varying(255),
-    created_at timestamp without time zone
+    created_at timestamp without time zone,
+    email_verification_code character varying(8),
+    email_code_expires_at timestamp without time zone,
+    email_verification_attempts integer DEFAULT 0,
+    is_email_verified boolean DEFAULT false,
+    deleted_at timestamp without time zone
 );
 
 ALTER TABLE public.users ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (

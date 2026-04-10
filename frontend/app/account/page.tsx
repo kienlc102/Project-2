@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getProfile, logout, getToken, removeToken, updateProfile, updatePassword } from '@/lib/auth';
-import { LogOut, User, Check, X } from 'lucide-react';
+import { getProfile, logout, getToken, removeToken, updateProfile, updatePassword, deleteAccount } from '@/lib/auth';
+import { LogOut, User, Check, X, Trash2 } from 'lucide-react';
 
 interface UserProfile {
   id: number;
@@ -38,6 +38,13 @@ export default function AccountPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [updatingPassword, setUpdatingPassword] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Delete account state
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [deleteConfirmPassword, setDeleteConfirmPassword] = useState('');
+  const [deleteConfirming, setDeleteConfirming] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteMessage, setDeleteMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -180,6 +187,36 @@ export default function AccountPage() {
       setPasswordMessage({ type: 'error', text: 'Lỗi khi cập nhật' });
     } finally {
       setUpdatingPassword(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    const token = getToken();
+    if (!token) return;
+
+    setDeleteLoading(true);
+    try {
+      const response = await deleteAccount(token, deleteConfirmPassword);
+      if (response.success) {
+        setDeleteMessage({ type: 'success', text: 'Tài khoản đã được xóa thành công' });
+        removeToken();
+        
+        // Redirect ra Landing Page (trang chủ) sau 2 giây theo đúng flow
+        setTimeout(() => {
+          router.push('/');
+        }, 2000);
+      } else {
+        setDeleteMessage({ type: 'error', text: response.message || 'Lỗi xóa tài khoản' });
+        // Chỉ reset form khi xóa thất bại
+        setDeleteConfirming(false);
+        setDeleteConfirmPassword('');
+      }
+    } catch (err) {
+      setDeleteMessage({ type: 'error', text: 'Lỗi khi xóa tài khoản' });
+      setDeleteConfirming(false);
+      setDeleteConfirmPassword('');
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -499,16 +536,72 @@ export default function AccountPage() {
 
         {/* Danger Zone */}
         <div className="bg-white rounded-lg shadow-lg p-8 border-l-4 border-red-600">
-          <h2 className="text-lg font-bold text-red-600 mb-4">Vùng nguy hiểm</h2>
+          <h2 className="text-lg font-bold text-red-600 mb-4 flex items-center gap-2">
+            <Trash2 className="w-5 h-5" />
+            Vùng nguy hiểm
+          </h2>
+          
+          {deleteMessage && (
+            <div className={`mb-4 p-3 rounded flex items-center gap-2 ${
+              deleteMessage.type === 'success'
+                ? 'bg-green-100 text-green-800 border border-green-400'
+                : 'bg-red-100 text-red-800 border border-red-400'
+            }`}>
+              {deleteMessage.type === 'success' ? (
+                <Check className="w-5 h-5" />
+              ) : (
+                <X className="w-5 h-5" />
+              )}
+              {deleteMessage.text}
+            </div>
+          )}
+
           <p className="text-gray-600 text-sm mb-4">
             Các hành động sau không thể được hoàn tác. Vui lòng thực hiện cẩn thận.
           </p>
-          <button
-            className="w-full px-4 py-2 bg-red-100 hover:bg-red-200 text-red-600 border border-red-300 rounded-lg transition duration-200 font-medium"
-            disabled
-          >
-            Xóa tài khoản (Sắp có)
-          </button>
+
+          {!deleteConfirming ? (
+            <button
+              onClick={() => setDeleteConfirming(true)}
+              className="w-full px-4 py-2 bg-red-100 hover:bg-red-200 text-red-600 border border-red-300 rounded-lg transition duration-200 font-medium"
+            >
+              Xóa tài khoản
+            </button>
+          ) : (
+            <div className="space-y-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-800 font-semibold">
+                ⚠️ Bạn chắc chắn muốn xóa tài khoản này không? Hành động này không thể hoàn tác!
+              </p>
+              
+              <input
+                type="password"
+                value={deleteConfirmPassword}
+                onChange={(e) => setDeleteConfirmPassword(e.target.value)}
+                placeholder="Nhập mật khẩu để xác nhận"
+                className="w-full px-4 py-2 border border-red-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+              />
+              
+              <div className="flex gap-2">
+                <button
+                  onClick={handleDeleteAccount}
+                  disabled={deleteLoading || !deleteConfirmPassword}
+                  className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition duration-200 disabled:opacity-50 font-medium"
+                >
+                  {deleteLoading ? 'Đang xóa...' : 'Xác nhận xóa'}
+                </button>
+                <button
+                  onClick={() => {
+                    setDeleteConfirming(false);
+                    setDeleteConfirmPassword('');
+                    setDeleteMessage(null);
+                  }}
+                  className="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg transition duration-200"
+                >
+                  Huỷ
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
