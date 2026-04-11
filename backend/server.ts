@@ -1,7 +1,9 @@
 import express, { Express } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
 import authRoutes from './routes/auth';
+import flashcardRoutes from './routes/flashcards';
 import { query } from './db';
 
 dotenv.config();
@@ -17,6 +19,9 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Serve uploaded files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'Server is running' });
@@ -24,6 +29,9 @@ app.get('/api/health', (req, res) => {
 
 // Authentication routes
 app.use('/api/auth', authRoutes);
+
+// Flashcard routes
+app.use('/api/flashcards', flashcardRoutes);
 
 // 404 handler
 app.use((req, res) => {

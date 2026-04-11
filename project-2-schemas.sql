@@ -135,3 +135,57 @@ ALTER TABLE ONLY public.messages ADD CONSTRAINT fk_message_user FOREIGN KEY (use
 ALTER TABLE ONLY public.document_metadata ADD CONSTRAINT fk_meta_doc FOREIGN KEY (document_id) REFERENCES public.documents(id) ON UPDATE CASCADE ON DELETE CASCADE;
 ALTER TABLE ONLY public.sessions ADD CONSTRAINT fk_session_group FOREIGN KEY (group_id) REFERENCES public.groups(id) ON UPDATE CASCADE ON DELETE CASCADE;
 ALTER TABLE ONLY public.whiteboard_data ADD CONSTRAINT fk_whiteboard_session FOREIGN KEY (session_id) REFERENCES public.sessions(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+-- =============================================
+-- FLASHCARD TABLES
+-- =============================================
+
+CREATE TABLE public.flashcard_sets (
+    id integer NOT NULL,
+    user_id integer NOT NULL,
+    title character varying(255) NOT NULL,
+    description text,
+    visibility character varying(10) DEFAULT 'public'::character varying,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT flashcard_sets_visibility_check CHECK (((visibility)::text = ANY ((ARRAY['public'::character varying, 'private'::character varying])::text[])))
+);
+
+ALTER TABLE public.flashcard_sets ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public."FlashcardSets_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+CREATE TABLE public.flashcards (
+    id integer NOT NULL,
+    set_id integer NOT NULL,
+    term text NOT NULL,
+    definition text NOT NULL,
+    term_image_url text,
+    definition_image_url text,
+    position integer NOT NULL DEFAULT 0,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE public.flashcards ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public."Flashcards_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+ALTER TABLE ONLY public.flashcard_sets ADD CONSTRAINT flashcard_sets_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.flashcards ADD CONSTRAINT flashcards_pkey PRIMARY KEY (id);
+
+CREATE INDEX idx_flashcard_sets_user_id ON public.flashcard_sets(user_id);
+CREATE INDEX idx_flashcard_sets_visibility ON public.flashcard_sets(visibility);
+CREATE INDEX idx_flashcards_set_id ON public.flashcards(set_id);
+
+ALTER TABLE ONLY public.flashcard_sets ADD CONSTRAINT fk_flashcard_set_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY public.flashcards ADD CONSTRAINT fk_flashcard_set FOREIGN KEY (set_id) REFERENCES public.flashcard_sets(id) ON UPDATE CASCADE ON DELETE CASCADE;

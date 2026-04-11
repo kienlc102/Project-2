@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { getToken, removeToken } from '@/lib/auth';
-import { LogIn, LogOut, UserPlus, User, Search } from 'lucide-react';
+import { LogIn, LogOut, UserPlus, User, Search, Layers } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function Home() {
@@ -67,6 +67,13 @@ export default function Home() {
             {isAuthenticated ? (
               <>
                 <Link
+                  href="/flashcards"
+                  className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition"
+                >
+                  <Layers className="w-5 h-5" />
+                  <span>Flashcards</span>
+                </Link>
+                <Link
                   href="/account"
                   className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition"
                 >
@@ -83,6 +90,13 @@ export default function Home() {
               </>
             ) : (
               <>
+                <Link
+                  href="/flashcards"
+                  className="flex items-center gap-2 px-4 py-2 text-indigo-600 border border-indigo-600 rounded-lg hover:bg-indigo-50 transition"
+                >
+                  <Layers className="w-5 h-5" />
+                  <span>Flashcards</span>
+                </Link>
                 <Link
                   href="/login"
                   className="flex items-center gap-2 px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition"
@@ -181,6 +195,18 @@ export default function Home() {
                   <h4 className="font-semibold text-gray-800">Trò chuyện tức thời</h4>
                   <p className="text-gray-600 text-sm">
                     Giao tiếp với đội nhóm của bạn trong thời gian thực
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <span className="text-2xl">🃏</span>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-800">Flashcards</h4>
+                  <p className="text-gray-600 text-sm">
+                    Tạo và học flashcard với hình ảnh, phát âm, chia sẻ
                   </p>
                 </div>
               </div>
