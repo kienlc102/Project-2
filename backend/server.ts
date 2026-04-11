@@ -1,7 +1,11 @@
 import express, { Express } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
 import authRoutes from './routes/auth';
+import flashcardRoutes from './routes/flashcards';
+import quizRoutes from './routes/quizzes';
+import { query } from './db';
 
 dotenv.config();
 
@@ -16,6 +20,9 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Serve uploaded files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'Server is running' });
@@ -23,6 +30,12 @@ app.get('/api/health', (req, res) => {
 
 // Authentication routes
 app.use('/api/auth', authRoutes);
+
+// Flashcard routes
+app.use('/api/flashcards', flashcardRoutes);
+
+// Quiz routes
+app.use('/api/quizzes', quizRoutes);
 
 // 404 handler
 app.use((req, res) => {
@@ -44,4 +57,20 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 // Start server
 app.listen(PORT, () => {
   console.log(`✅ Server đang chạy tại http://localhost:${PORT}`);
+
+  // Cron job: Xóa tài khoản chưa xác thực email sau 24 giờ (chạy mỗi 1 giờ)
+  setInterval(async () => {
+    try {
+      const result = await query(
+        `DELETE FROM public.users 
+         WHERE is_email_verified = false 
+           AND created_at < NOW() - INTERVAL '24 hours'`
+      );
+      if (result.rowCount && result.rowCount > 0) {
+        console.log(`🧹 Đã xóa ${result.rowCount} tài khoản chưa xác thực (>24h)`);
+      }
+    } catch (error) {
+      console.error('Cleanup cron error:', error);
+    }
+  }, 60 * 60 * 1000); // 1 giờ
 });

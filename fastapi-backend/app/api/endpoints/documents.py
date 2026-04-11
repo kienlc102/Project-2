@@ -1,7 +1,8 @@
 import os
 import uuid
 from typing import Optional
-from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status, Form
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status, Form, Query
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
@@ -22,6 +23,256 @@ router = APIRouter()
 
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+@router.get("/universities")
+async def list_universities(
+    search: Optional[str] = None,
+    limit: int = 100,
+    db: Session = Depends(get_db)
+):
+    query = db.query(University)
+    if search:
+        wildcard = f"%{search.strip().lower()}%"
+        query = query.filter(
+            func.lower(University.university_code).like(wildcard) |
+            func.lower(University.university_name).like(wildcard)
+        )
+
+    universities = query.order_by(University.university_name).limit(limit).all()
+    return [
+        {
+            "id": uni.id,
+            "university_code": uni.university_code,
+            "university_name": uni.university_name,
+        }
+        for uni in universities
+    ]
+
+@router.get("/subjects")
+async def list_subjects(
+    university_id: Optional[int] = None,
+    search: Optional[str] = None,
+    limit: int = 200,
+    db: Session = Depends(get_db)
+):
+    query = db.query(Subject)
+    if university_id is not None:
+        query = query.filter(Subject.university_id == university_id)
+
+    if search:
+        wildcard = f"%{search.strip().lower()}%"
+        query = query.filter(
+            func.lower(Subject.subject_code).like(wildcard) |
+            func.lower(Subject.subject_name).like(wildcard)
+        )
+
+    subjects = query.order_by(Subject.subject_code).limit(limit).all()
+    return [
+        {
+            "id": subject.id,
+            "subject_code": subject.subject_code,
+            "subject_name": subject.subject_name,
+            "university_id": subject.university_id,
+        }
+        for subject in subjects
+    ]
+
+@router.get("/search")
+async def search_documents(
+    keyword: str = Query(..., min_length=1, description="Từ khóa tìm kiếm tài liệu và môn học"),
+    limit: int = Query(20, ge=1, le=100),
+    db: Session = Depends(get_db)
+):
+    """
+    Tìm kiếm tài liệu theo tên file hoặc nội dung (OCR content), 
+    và tìm kiếm môn học theo mã hoặc tên.
+    """
+    wildcard = f"%{keyword.strip().lower()}%"
+    
+    # Tìm kiếm tài liệu
+    documents_query = db.query(Document).filter(
+        (func.lower(Document.file_name).like(wildcard)) |
+        (func.lower(Document.ocr_content).like(wildcard))
+    ).filter(Document.status == "active").order_by(Document.id.desc()).limit(limit).all()
+    
+    documents = [
+        {
+            "id": str(doc.id),
+            "file_name": doc.file_name,
+            "doc_type": doc.doc_type,
+            "subject_id": doc.subject_id,
+            "file_size": doc.file_size
+        }
+        for doc in documents_query
+    ]
+    
+    # Tìm kiếm môn học
+    subjects_query = db.query(Subject).filter(
+        (func.lower(Subject.subject_code).like(wildcard)) |
+        (func.lower(Subject.subject_name).like(wildcard))
+    ).order_by(Subject.subject_code).limit(limit).all()
+    
+    subjects = [
+        {
+            "id": subject.id,
+            "subject_code": subject.subject_code,
+            "subject_name": subject.subject_name,
+            "university_id": subject.university_id
+        }
+        for subject in subjects_query
+    ]
+    
+    return {
+        "documents": documents,
+        "subjects": subjects
+    }
+
+@router.get("/featured")
+async def get_featured_documents(
+    limit: int = Query(6, ge=1, le=20),
+    db: Session = Depends(get_db)
+):
+    featured = db.query(Document).filter(Document.status == "active").order_by(Document.created_at.desc()).limit(limit).all()
+    return [
+        {
+            "id": str(doc.id),
+            "file_name": doc.file_name,
+            "doc_type": doc.doc_type,
+            "subject_id": doc.subject_id,
+            "file_size": doc.file_size
+        }
+        for doc in featured
+    ]
+
+@router.get("/{doc_id}")
+async def get_document_detail(
+    doc_id: str,
+    db: Session = Depends(get_db)
+):
+    """
+    Lấy chi tiết một tài liệu bao gồm thông tin metadata và preview.
+    """
+    doc = db.query(Document).filter(Document.id == doc_id).first()
+    
+    if not doc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Tài liệu không tìm thấy."
+        )
+    
+    # Lấy thông tin môn học nếu có
+    subject_info = None
+    if doc.subject_id:
+        subject = db.query(Subject).filter(Subject.id == doc.subject_id).first()
+        if subject:
+            subject_info = {
+                "id": subject.id,
+                "subject_code": subject.subject_code,
+                "subject_name": subject.subject_name,
+                "university_id": subject.university_id
+            }
+    
+    # Lấy preview (200 ký tự đầu của nội dung OCR)
+    preview = doc.ocr_content[:200] if doc.ocr_content else "Không có nội dung"
+    
+    return {
+        "id": str(doc.id),
+        "file_name": doc.file_name,
+        "file_size": doc.file_size,
+        "doc_type": doc.doc_type,
+        "mime_type": doc.mime_type,
+        "created_at": doc.created_at,
+        "subject": subject_info,
+        "preview": preview,
+        "total_content_length": len(doc.ocr_content) if doc.ocr_content else 0,
+        "file_path": doc.file_path
+    }
+
+@router.get("/subject/{subject_id}")
+async def get_subject_detail(
+    subject_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    Lấy chi tiết môn học, thông tin trường, và các tài liệu liên quan.
+    """
+    subject = db.query(Subject).filter(Subject.id == subject_id).first()
+    if not subject:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Môn học không tồn tại."
+        )
+
+    university = db.query(University).filter(University.id == subject.university_id).first()
+    documents = db.query(Document).filter(
+        Document.subject_id == subject_id,
+        Document.status == "active"
+    ).order_by(Document.id.desc()).limit(50).all()
+
+    document_counts = {
+        "lecture": 0,
+        "exercise": 0,
+        "exam": 0,
+        "other": 0,
+    }
+    for doc in documents:
+        if doc.doc_type in document_counts:
+            document_counts[doc.doc_type] += 1
+        else:
+            document_counts["other"] += 1
+
+    return {
+        "id": subject.id,
+        "subject_code": subject.subject_code,
+        "subject_name": subject.subject_name,
+        "description": subject.description,
+        "created_at": subject.created_at,
+        "university": {
+            "id": university.id if university else None,
+            "university_code": university.university_code if university else None,
+            "university_name": university.university_name if university else None,
+        },
+        "documents": [
+            {
+                "id": str(doc.id),
+                "file_name": doc.file_name,
+                "doc_type": doc.doc_type,
+                "file_size": doc.file_size,
+                "subject_id": doc.subject_id,
+            }
+            for doc in documents
+        ],
+        "document_counts": document_counts,
+    }
+
+@router.get("/download/{doc_id}")
+async def download_document(
+    doc_id: str,
+    db: Session = Depends(get_db)
+):
+    """
+    Tải về tài liệu theo ID.
+    """
+    doc = db.query(Document).filter(Document.id == doc_id).first()
+    
+    if not doc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Tài liệu không tìm thấy."
+        )
+    
+    # Kiểm tra file có tồn tại không
+    if not os.path.exists(doc.file_path):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="File không tìm thấy trên hệ thống."
+        )
+    
+    return FileResponse(
+        path=doc.file_path,
+        media_type=doc.mime_type or 'application/octet-stream',
+        filename=doc.file_name
+    )
 
 @router.post("/upload")
 async def upload_document(
@@ -61,6 +312,14 @@ async def upload_document(
 
     if existing_uni:
         final_university_id = existing_uni.id
+    else:
+        new_uni = University(
+            university_code=clean_uni_code,
+            university_name=clean_uni_code,
+        )
+        db.add(new_uni)
+        db.flush()
+        final_university_id = new_uni.id
 
     # ---------------------------------------------------------
     # XỬ LÝ MÔN HỌC (GET OR CREATE - CÓ GẮN VỚI UNIVERSITY)

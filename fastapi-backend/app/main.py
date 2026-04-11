@@ -24,10 +24,11 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["http://localhost:3000"], # Cho phép Next.js gọi tới
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["*"], # Cho phép mọi method (GET, POST,...)
     allow_headers=["*"],
+    expose_headers=["Content-Disposition"] # Quan trọng để tải file PDF
 )
 
 

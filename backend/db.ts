@@ -5,11 +5,11 @@ dotenv.config();
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false,
-  },
+  // This is the critical part:
+  ssl: false 
 });
 
+// Đã fix lỗi TS7006: Khai báo rõ kiểu dữ liệu cho 'err' là 'Error'
 pool.on('error', (err: Error) => {
   console.error('Unexpected error on idle client', err);
 });

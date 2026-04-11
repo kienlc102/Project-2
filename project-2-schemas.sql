@@ -50,7 +50,12 @@ CREATE TABLE public.users (
     full_name character varying(255),
     is_verified boolean NOT NULL,
     provider character varying(255),
-    created_at timestamp without time zone
+    created_at timestamp without time zone,
+    email_verification_code character varying(8),
+    email_code_expires_at timestamp without time zone,
+    email_verification_attempts integer DEFAULT 0,
+    is_email_verified boolean DEFAULT false,
+    deleted_at timestamp without time zone
 );
 
 ALTER TABLE public.users ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
@@ -207,3 +212,156 @@ ALTER TABLE ONLY public.messages ADD CONSTRAINT fk_message_user FOREIGN KEY (use
 -- Các bảng liên quan đến Sessions & Whiteboard
 ALTER TABLE ONLY public.sessions ADD CONSTRAINT fk_session_group FOREIGN KEY (group_id) REFERENCES public.groups(id) ON UPDATE CASCADE ON DELETE CASCADE;
 ALTER TABLE ONLY public.whiteboard_data ADD CONSTRAINT fk_whiteboard_session FOREIGN KEY (session_id) REFERENCES public.sessions(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+-- =============================================
+-- FLASHCARD TABLES
+-- =============================================
+
+CREATE TABLE public.flashcard_sets (
+    id integer NOT NULL,
+    user_id integer NOT NULL,
+    title character varying(255) NOT NULL,
+    description text,
+    visibility character varying(10) DEFAULT 'public'::character varying,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT flashcard_sets_visibility_check CHECK (((visibility)::text = ANY ((ARRAY['public'::character varying, 'private'::character varying])::text[])))
+);
+
+ALTER TABLE public.flashcard_sets ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public."FlashcardSets_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+CREATE TABLE public.flashcards (
+    id integer NOT NULL,
+    set_id integer NOT NULL,
+    term text NOT NULL,
+    definition text NOT NULL,
+    term_image_url text,
+    definition_image_url text,
+    position integer NOT NULL DEFAULT 0,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE public.flashcards ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public."Flashcards_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+ALTER TABLE ONLY public.flashcard_sets ADD CONSTRAINT flashcard_sets_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.flashcards ADD CONSTRAINT flashcards_pkey PRIMARY KEY (id);
+
+CREATE INDEX idx_flashcard_sets_user_id ON public.flashcard_sets(user_id);
+CREATE INDEX idx_flashcard_sets_visibility ON public.flashcard_sets(visibility);
+CREATE INDEX idx_flashcards_set_id ON public.flashcards(set_id);
+
+ALTER TABLE ONLY public.flashcard_sets ADD CONSTRAINT fk_flashcard_set_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY public.flashcards ADD CONSTRAINT fk_flashcard_set FOREIGN KEY (set_id) REFERENCES public.flashcard_sets(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+-- =============================================
+-- QUIZ TABLES
+-- =============================================
+
+CREATE TABLE public.quizzes (
+    id integer NOT NULL,
+    user_id integer NOT NULL,
+    title character varying(255) NOT NULL DEFAULT 'Quiz không có tiêu đề',
+    description text,
+    visibility character varying(10) DEFAULT 'public'::character varying,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT quizzes_visibility_check CHECK (((visibility)::text = ANY ((ARRAY['public'::character varying, 'private'::character varying])::text[])))
+);
+
+ALTER TABLE public.quizzes ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public."Quizzes_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+CREATE TABLE public.quiz_questions (
+    id integer NOT NULL,
+    quiz_id integer NOT NULL,
+    question_text text NOT NULL,
+    question_type character varying(20) NOT NULL DEFAULT 'multiple_choice'::character varying,
+    image_url text,
+    is_required boolean DEFAULT false,
+    points integer DEFAULT 1,
+    position integer NOT NULL DEFAULT 0,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT quiz_questions_type_check CHECK (((question_type)::text = ANY ((ARRAY['multiple_choice'::character varying, 'checkboxes'::character varying, 'short_answer'::character varying, 'paragraph'::character varying, 'dropdown'::character varying])::text[])))
+);
+
+ALTER TABLE public.quiz_questions ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public."QuizQuestions_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+CREATE TABLE public.quiz_options (
+    id integer NOT NULL,
+    question_id integer NOT NULL,
+    option_text text NOT NULL,
+    is_correct boolean DEFAULT false,
+    position integer NOT NULL DEFAULT 0
+);
+
+ALTER TABLE public.quiz_options ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
+    SEQUENCE NAME public."QuizOptions_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+ALTER TABLE ONLY public.quizzes ADD CONSTRAINT quizzes_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.quiz_questions ADD CONSTRAINT quiz_questions_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.quiz_options ADD CONSTRAINT quiz_options_pkey PRIMARY KEY (id);
+
+CREATE INDEX idx_quizzes_user_id ON public.quizzes(user_id);
+CREATE INDEX idx_quizzes_visibility ON public.quizzes(visibility);
+CREATE INDEX idx_quiz_questions_quiz_id ON public.quiz_questions(quiz_id);
+CREATE INDEX idx_quiz_options_question_id ON public.quiz_options(question_id);
+
+ALTER TABLE ONLY public.quizzes ADD CONSTRAINT fk_quiz_user FOREIGN KEY (user_id) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY public.quiz_questions ADD CONSTRAINT fk_quiz_question_quiz FOREIGN KEY (quiz_id) REFERENCES public.quizzes(id) ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY public.quiz_options ADD CONSTRAINT fk_quiz_option_question FOREIGN KEY (question_id) REFERENCES public.quiz_questions(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+INSERT INTO public.universities (university_name, university_code, description, created_at)
+VALUES 
+    ('Đại học Bách khoa Hà Nội', 'HUST', 'Trường đại học kỹ thuật đa ngành hàng đầu tại Việt Nam, chuyên đào tạo kỹ sư và nghiên cứu công nghệ.', CURRENT_TIMESTAMP),
+    ('Trường Đại học Kinh tế Quốc dân', 'NEU', 'Trường đại học trọng điểm quốc gia đầu ngành đào tạo về kinh tế, quản lý và quản trị kinh doanh.', CURRENT_TIMESTAMP),
+    ('Trường Đại học Xây dựng Hà Nội', 'HUCE', 'Một trong những trường đại học kỹ thuật hàng đầu tại Việt Nam về nhóm ngành xây dựng và kiến trúc.', CURRENT_TIMESTAMP),
+    ('Đại học Quốc gia Hà Nội', 'VNU', 'Trung tâm đào tạo, nghiên cứu khoa học và chuyển giao công nghệ đa ngành, đa lĩnh vực lớn nhất Việt Nam.', CURRENT_TIMESTAMP),
+    ('Trường Đại học Ngoại thương', 'FTU', 'Trường đại học chuyên ngành kinh tế, thương mại quốc tế, nổi tiếng với môi trường năng động.', CURRENT_TIMESTAMP),
+    ('Trường Đại học Thương mại', 'TMU', 'Trường đại học công lập đa ngành, hàng đầu về kinh tế, thương mại và quản trị kinh doanh.', CURRENT_TIMESTAMP),
+    ('Học viện Công nghệ Bưu chính Viễn thông', 'PTIT', 'Cơ sở đào tạo, nghiên cứu trọng điểm về Viễn thông, Công nghệ thông tin và Truyền thông.', CURRENT_TIMESTAMP),
+    ('Đại học Quốc gia Thành phố Hồ Chí Minh', 'VNUHCM', 'Hệ thống đại học quốc gia lớn nhất và uy tín nhất tại khu vực miền Nam Việt Nam.', CURRENT_TIMESTAMP),
+    ('Trường Đại học Bách khoa - ĐHQG TP.HCM', 'HCMUT', 'Trường đại học kỹ thuật đầu ngành tại miền Nam, đơn vị thành viên nòng cốt của ĐHQG TP.HCM.', CURRENT_TIMESTAMP),
+    ('Đại học Kinh tế Thành phố Hồ Chí Minh', 'UEH', 'Đại học trọng điểm quốc gia, đào tạo đa ngành về kinh tế, kinh doanh, luật và quản lý.', CURRENT_TIMESTAMP),
+    ('Trường Đại học Khoa học Tự nhiên - ĐHQG TP.HCM', 'HCMUS', 'Trung tâm đào tạo và nghiên cứu khoa học cơ bản, công nghệ mũi nhọn hàng đầu khu vực.', CURRENT_TIMESTAMP),
+    ('Trường Đại học Công nghệ Thông tin - ĐHQG TP.HCM', 'UIT', 'Trường đại học công lập chuyên sâu về đào tạo và nghiên cứu công nghệ thông tin.', CURRENT_TIMESTAMP),
+    ('Học viện Tài chính', 'AOF', 'Cơ sở đào tạo đầu ngành về tài chính, kế toán, kiểm toán tại Việt Nam.', CURRENT_TIMESTAMP),
+    ('Học viện Ngân hàng', 'HVNH', 'Trường đại học đa ngành, định hướng ứng dụng, trực thuộc Ngân hàng Nhà nước Việt Nam.', CURRENT_TIMESTAMP),
+    ('Trường Đại học Y Hà Nội', 'HMU', 'Trường đại học y khoa hàng đầu, lâu đời và danh giá nhất của Việt Nam.', CURRENT_TIMESTAMP),
+    ('Trường Đại học Sư phạm Hà Nội', 'HNUE', 'Trường đại học trọng điểm, trung tâm đào tạo giáo viên và nghiên cứu giáo dục lớn nhất Việt Nam.', CURRENT_TIMESTAMP),
+    ('Đại học FPT', 'FPT', 'Trường đại học tư thục tiên phong do Tập đoàn FPT thành lập, gắn liền đào tạo với thực tiễn doanh nghiệp.', CURRENT_TIMESTAMP),
+    ('Đại học RMIT Việt Nam', 'RMIT', 'Phân hiệu châu Á của Đại học RMIT (Úc) tại Việt Nam, mang đến môi trường giáo dục chuẩn quốc tế.', CURRENT_TIMESTAMP),
+    ('Trường Đại học Công nghệ - ĐHQGHN', 'UET', 'Trường đại học thành viên của ĐHQGHN, mũi nhọn về công nghệ thông tin, điện tử viễn thông và cơ kỹ thuật.', CURRENT_TIMESTAMP),
+    ('Trường Đại học Khoa học Xã hội và Nhân văn - ĐHQGHN', 'USSH', 'Trung tâm đào tạo và nghiên cứu khoa học xã hội và nhân văn uy tín bậc nhất Việt Nam.', CURRENT_TIMESTAMP);
