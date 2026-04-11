@@ -1,24 +1,17 @@
 import nodemailer from 'nodemailer';
 
-// Tạo transporter để gửi email
 const transporter = nodemailer.createTransport({
-  service: 'gmail', // Hoặc dùng email service khác, tùy theo yêu cầu
+  service: 'gmail',
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASSWORD,
   },
 });
 
-/**
- * Tạo mã xác thực 8 chữ số
- */
 export const generateVerificationCode = (): string => {
   return Math.floor(10000000 + Math.random() * 90000000).toString();
 };
 
-/**
- * Gửi email xác thực
- */
 export const sendVerificationEmail = async (email: string, code: string): Promise<boolean> => {
   try {
     const mailOptions = {

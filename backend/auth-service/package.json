@@ -1,22 +1,19 @@
 {
-  "name": "backend",
+  "name": "auth-service",
   "version": "1.0.0",
-  "description": "Express.js backend for authentication",
+  "description": "Authentication microservice - Đăng nhập/Đăng ký/Đăng xuất",
   "main": "server.ts",
   "scripts": {
     "dev": "ts-node server.ts",
     "build": "tsc",
-    "start": "node dist/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node dist/server.js"
   },
   "dependencies": {
-    "@types/multer": "^2.1.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.3",
-    "multer": "^2.1.1",
     "nodemailer": "^6.10.1",
     "pg": "^8.11.3"
   },
