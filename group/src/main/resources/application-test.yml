@@ -1,0 +1,23 @@
+server:
+  port: 8080 # Cổng chạy server của bạn (khác với 3000 của Node.js)
+
+spring:
+  application:
+    name: group-service
+
+  # Cấu hình kết nối Database PostgreSQL
+  datasource:
+    url: jdbc:postgresql://localhost:5432/project2_lam
+    username: postgres # Đổi thành username DB của bạn
+    password: 123456  # Đổi thành password DB của bạn
+    driver-class-name: org.postgresql.Driver
+
+  # Cấu hình JPA (Hibernate)
+  jpa:
+    hibernate:
+      ddl-auto: update # CỰC KỲ QUAN TRỌNG: Tự động tạo bảng/cập nhật bảng khi có file @Entity mới
+    show-sql: true     # In câu lệnh SQL ra console để dễ debug
+    properties:
+      hibernate:
+        format_sql: true # Format SQL cho dễ nhìn
+        dialect: org.hibernate.dialect.PostgreSQLDialect

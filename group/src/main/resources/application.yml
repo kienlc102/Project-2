@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: group-service
+  profiles:
+    active: dev
