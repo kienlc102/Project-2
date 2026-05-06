@@ -144,6 +144,30 @@ async def get_featured_documents(
         for doc in featured
     ]
 
+
+@router.get("/featured-subject/{subject_id}")
+async def get_featured_documents_by_subject(
+    subject_id: int,
+    limit: int = Query(6, ge=1, le=20),
+    db: Session = Depends(get_db)
+):
+    featured = db.query(Document).filter(
+        Document.status == "active",
+        Document.subject_id == subject_id
+    ).order_by(Document.created_at.desc()).limit(limit).all()
+    
+    return [
+        {
+            "id": str(doc.id),
+            "file_name": doc.file_name,
+            "doc_type": doc.doc_type,
+            "subject_id": doc.subject_id,
+            "file_size": doc.file_size
+        }
+        for doc in featured
+    ]
+
+
 @router.get("/{doc_id}")
 async def get_document_detail(
     doc_id: str,
@@ -351,11 +375,15 @@ async def upload_document(
     file_bytes = await file.read()
     file_hash = calculate_hash(file_bytes)
     
-    existing_doc = db.query(Document).filter(Document.hash_value == file_hash).first()
+    # Chỉ kiểm tra trùng lặp hash với các tài liệu trong CÙNG MÔN HỌC
+    existing_doc = db.query(Document).filter(
+        Document.hash_value == file_hash,
+        Document.subject_id == final_subject_id
+    ).first()
     if existing_doc:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=f"Tài liệu giống hệt 100% đã tồn tại (Mã tài liệu: {existing_doc.id}). Hệ thống từ chối lưu."
+            detail=f"Tài liệu giống hệt 100% đã tồn tại trong môn học này (Mã tài liệu: {existing_doc.id}). Hệ thống từ chối lưu."
         )
 
     # ---------------------------------------------------------
@@ -378,14 +406,18 @@ async def upload_document(
     
     SIMILARITY_THRESHOLD = 0.15 
     
-    similar_chunk = db.query(DocumentChunk).filter(
+    # Chỉ kiểm tra trùng lặp ngữ nghĩa với các tài liệu trong CÙNG MÔN HỌC
+    similar_chunk = db.query(DocumentChunk).join(
+        Document, Document.id == DocumentChunk.document_id
+    ).filter(
+        Document.subject_id == final_subject_id,
         DocumentChunk.embedding.cosine_distance(first_chunk_vector) < SIMILARITY_THRESHOLD
     ).first()
 
     if similar_chunk:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Nội dung tài liệu này tương tự với một tài liệu đã có trên hệ thống. Hệ thống từ chối lưu."
+            detail="Nội dung tài liệu này tương tự với một tài liệu đã có trong môn học này. Hệ thống từ chối lưu."
         ) 
 
     # =========================================================

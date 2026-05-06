@@ -208,6 +208,24 @@ export default function HomePage() {
               <ArrowRight className="w-4 h-4" />
             </div>
           </Link>
+
+          {/* Subject Card */}
+          <Link
+            href="/subject"
+            className="group relative bg-white rounded-2xl shadow-sm hover:shadow-xl border border-gray-100 p-8 transition-all duration-300 hover:-translate-y-1"
+          >
+            <div className="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center mb-5 group-hover:bg-green-200 transition">
+              <GraduationCap className="w-7 h-7 text-green-600" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Môn học</h3>
+            <p className="text-gray-600 mb-4">
+              Khám phá các môn học được quan tâm nhiều nhất.
+            </p>
+            <div className="flex items-center gap-1 text-green-600 font-medium text-sm group-hover:gap-2 transition-all">
+              Khám phá Môn học
+              <ArrowRight className="w-4 h-4" />
+            </div>
+          </Link>
         </div>
       </section>
 
