@@ -6,6 +6,8 @@ import authRoutes from './routes/auth';
 import flashcardRoutes from './routes/flashcards';
 import quizRoutes from './routes/quizzes';
 import { query } from './db';
+import { createProxyMiddleware } from 'http-proxy-middleware';
+import { authMiddleware } from './middleware/auth';
 
 dotenv.config();
 
@@ -17,6 +19,25 @@ app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   credentials: true,
 }));
+
+//API GATEWAY CHO GROUP
+app.use('/api/groups',
+  authMiddleware,
+  (req: any, res: express.Response, next: express.NextFunction) => {
+    if (req.userId) {
+      req.headers['x-user-id'] = String(req.userId);
+    }
+    next();
+  },
+  createProxyMiddleware({
+    target: process.env.GROUP_SERVICE_URL || 'http://localhost:8080',
+    changeOrigin: true,
+    pathRewrite: (path, req) => {
+      return req.originalUrl; // Bắt proxy xách nguyên cái đường dẫn gốc sang Spring Boot
+    }
+  })
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

@@ -3,6 +3,7 @@ import { query } from '../db';
 import { hashPassword, comparePassword, generateToken } from '../utils/auth';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
 import { generateVerificationCode, sendVerificationEmail } from '../utils/email';
+import { Request } from 'express';
 
 const router = Router();
 
@@ -659,6 +660,35 @@ router.post('/email/verify', async (req: AuthRequest, res: Response) => {
       success: false,
       message: 'Lỗi xác thực email',
     });
+  }
+});
+
+/**
+ * API nội bộ: Lấy thông tin user theo ID (Dành cho Spring Boot gọi)
+ * GET /api/auth/user/:id
+ */
+router.get('/user/:id', async (req: Request, res: Response) => {
+  try {
+    const result = await query(
+      'SELECT id, email, full_name FROM public.users WHERE id = $1',
+      [req.params.id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const user = result.rows[0];
+    return res.status(200).json({
+      success: true,
+      data: {
+        id: user.id,
+        email: user.email,
+        fullName: user.full_name,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'Internal error' });
   }
 });
 

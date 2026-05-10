@@ -24,3 +24,31 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.chat-icon { width: 24px; height: 24px; stroke: #262626; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none; display: flex; align-items: center; justify-content: center;}
+.chat-icon-small { width: 18px; height: 18px; }
+
+.chat-group-item { padding: 15px 20px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 12px; }
+.chat-group-item:hover { background: #fafafa; }
+.chat-group-item.active { background: #efefef; }
+.chat-group-avatar { width: 44px; height: 44px; border-radius: 50%; background: #e0e0e0; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold; color: white; flex-shrink: 0;}
+
+.chat-message-wrapper { display: flex; flex-direction: column; position: relative; margin-bottom: 15px;}
+.chat-message-wrapper.me { align-items: flex-end; }
+.chat-message-wrapper.them { align-items: flex-start; }
+
+.chat-message { max-width: 65%; padding: 12px 16px; border-radius: 22px; font-size: 15px; line-height: 1.5; word-wrap: break-word; position: relative;}
+.chat-message .sender { font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #8e8e8e; margin-left: 4px;}
+.chat-message.them { background: #efefef; color: #262626; }
+.chat-message.me { background: #0095f6; color: white; }
+.chat-message img { max-width: 100%; border-radius: 12px; margin-top: 5px; cursor: pointer; border: 1px solid #efefef; }
+
+.chat-message-actions { display: none; margin-top: 4px; padding: 0 8px;}
+.chat-message-wrapper:hover .chat-message-actions { display: flex; }
+.chat-delete-btn { background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;}
+.chat-delete-btn .chat-icon { width: 16px; height: 16px; stroke: #8e8e8e; transition: 0.2s;}
+.chat-delete-btn:hover .chat-icon { stroke: #ed4956; }
+
+.chat-file-card { display: flex; align-items: center; gap: 12px; background: #ffffff; padding: 12px; border-radius: 12px; margin-top: 5px; border: 1px solid #efefef; color: #262626; }
+.chat-message.me .chat-file-card { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: white;}
+.chat-message.me .chat-file-card .chat-icon { stroke: white; }

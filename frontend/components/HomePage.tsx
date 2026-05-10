@@ -16,6 +16,7 @@ import {
   ArrowRight,
   Sparkles,
   Search,
+  MessageCircle,
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -64,6 +65,13 @@ export default function HomePage() {
           <div className="flex items-center gap-3">
             {isAuthenticated ? (
               <>
+              <Link
+                  href="/chat"
+                  className="flex items-center gap-1.5 px-3 py-2 text-gray-600 hover:text-gray-900 transition text-sm"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  Nhắn tin
+                </Link>
                 <Link
                   href="/account"
                   className="flex items-center gap-1.5 px-3 py-2 text-gray-600 hover:text-gray-900 transition text-sm"
