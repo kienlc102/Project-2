@@ -63,13 +63,6 @@ export default function QuizList() {
               <ArrowLeft className="h-4 w-4" />
               Quay lại
             </Link>
-            <Link
-              href="/quizzes/create"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
-            >
-              <Plus className="h-4 w-4" />
-              Tạo bài trắc nghiệm
-            </Link>
           </div>
         </div>
 
@@ -103,7 +96,7 @@ export default function QuizList() {
                 >
                   <div className="flex items-center gap-4">
                     <div className="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-white shadow-sm">
-                        <HelpCircle className="w-6 h-6 text-blue-600" />
+                      <HelpCircle className="w-6 h-6 text-blue-600" />
                     </div>
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-slate-500">Trắc nghiệm</p>
@@ -112,7 +105,7 @@ export default function QuizList() {
                   </div>
                   <div className="mt-6 flex items-center justify-between text-sm text-slate-500">
                     <span className="flex items-center gap-1 text-green-600">
-                        <CheckCircle className="w-4 h-4" /> {quiz.success ? "Thành công" : "Lỗi"}
+                      <CheckCircle className="w-4 h-4" /> {quiz.success ? "Thành công" : "Lỗi"}
                     </span>
                     <span className="rounded-full bg-white px-3 py-1 text-slate-600 shadow-sm">#{quiz.quiz_id}</span>
                   </div>
