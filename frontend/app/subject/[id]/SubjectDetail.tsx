@@ -83,7 +83,7 @@ export default function SubjectDetailComponent() {
 
   // Quiz Form States
   const [selectedDocs, setSelectedDocs] = useState<string[]>([]);
-  const [numQuestions, setNumQuestions] = useState(10);
+  const [numQuestions, setNumQuestions] = useState(5);
   const [difficulty, setDifficulty] = useState('medium');
   const [additionalContext, setAdditionalContext] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -104,7 +104,7 @@ export default function SubjectDetailComponent() {
         if (!subjectRes.ok) {
           throw new Error(`Không tải được thông tin môn học (${subjectRes.status})`);
         }
-        
+
         const subjectData = await subjectRes.json();
         setSubject(subjectData);
 
@@ -123,8 +123,8 @@ export default function SubjectDetailComponent() {
   }, [subjectId]);
 
   const toggleDocSelection = (docId: string) => {
-    setSelectedDocs(prev => 
-      prev.includes(docId) 
+    setSelectedDocs(prev =>
+      prev.includes(docId)
         ? prev.filter(id => id !== docId)
         : [...prev, docId]
     );
@@ -132,10 +132,10 @@ export default function SubjectDetailComponent() {
 
   const handleGenerateQuiz = async () => {
     if (selectedDocs.length === 0) return;
-    
+
     setIsGenerating(true);
     setQuizError('');
-    
+
     try {
       const response = await fetch('http://localhost:8000/api/v1/quiz/generate', {
         method: 'POST',
@@ -239,7 +239,7 @@ export default function SubjectDetailComponent() {
 
       <div className="max-w-6xl mx-auto px-4 mt-8">
         <div className="grid gap-8 lg:grid-cols-3">
-          
+
           {/* Main Content: Featured Documents */}
           <div className="lg:col-span-2 space-y-6">
             <div className="flex items-center justify-between">
@@ -248,7 +248,7 @@ export default function SubjectDetailComponent() {
                 <span className="text-sm text-gray-500">
                   Đã chọn: <strong className="text-blue-600">{selectedDocs.length}</strong>
                 </span>
-                <Link 
+                <Link
                   href={`/search/subject/${subjectId}`}
                   className="text-sm font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1"
                 >
@@ -262,16 +262,15 @@ export default function SubjectDetailComponent() {
                 {featuredDocs.map(doc => (
                   <div
                     key={doc.id}
-                    className={`group flex flex-col bg-white rounded-2xl p-5 border transition-all cursor-pointer relative ${
-                      selectedDocs.includes(doc.id) 
-                        ? 'border-purple-500 shadow-md ring-1 ring-purple-500' 
-                        : 'border-slate-200 shadow-sm hover:shadow-md hover:border-blue-300'
-                    }`}
+                    className={`group flex flex-col bg-white rounded-2xl p-5 border transition-all cursor-pointer relative ${selectedDocs.includes(doc.id)
+                      ? 'border-purple-500 shadow-md ring-1 ring-purple-500'
+                      : 'border-slate-200 shadow-sm hover:shadow-md hover:border-blue-300'
+                      }`}
                     onClick={() => toggleDocSelection(doc.id)}
                   >
                     <div className="absolute top-4 right-4">
-                      <input 
-                        type="checkbox" 
+                      <input
+                        type="checkbox"
                         className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500 cursor-pointer pointer-events-none"
                         checked={selectedDocs.includes(doc.id)}
                         readOnly
@@ -293,7 +292,7 @@ export default function SubjectDetailComponent() {
 
                     <div className="text-xs font-medium text-slate-500 pt-3 border-t border-slate-100 flex items-center justify-between">
                       <span>{formatBytes(doc.file_size)}</span>
-                      <Link 
+                      <Link
                         href={`/search/${doc.id}`}
                         onClick={(e) => e.stopPropagation()}
                         className="text-blue-600 hover:text-blue-800 hover:underline z-10 font-semibold"
@@ -308,7 +307,7 @@ export default function SubjectDetailComponent() {
               <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm text-center">
                 <FileText className="w-12 h-12 text-slate-300 mx-auto mb-3" />
                 <p className="text-slate-500 font-medium">Chưa có tài liệu nổi bật nào cho môn học này.</p>
-                <Link 
+                <Link
                   href="/document/upload"
                   className="inline-block mt-4 text-sm font-semibold text-blue-600 hover:underline"
                 >
@@ -321,112 +320,112 @@ export default function SubjectDetailComponent() {
           {/* Sidebar */}
           <div className="space-y-6">
             <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 sticky top-32">
-               <div className="flex items-center gap-3 mb-4">
-                 <div className="p-2 bg-purple-100 rounded-lg">
-                    <Sparkles className="w-6 h-6 text-purple-600" />
-                 </div>
-                 <h3 className="text-lg font-bold text-slate-900">Tạo Quiz AI</h3>
-               </div>
-               
-               <p className="text-slate-600 text-sm mb-6 leading-relaxed">
-                 Tạo tự động bộ câu hỏi trắc nghiệm từ các tài liệu bạn đã chọn. AI sẽ phân tích nội dung và sinh ra quiz cho bạn.
-               </p>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <Sparkles className="w-6 h-6 text-purple-600" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900">Tạo Quiz AI</h3>
+              </div>
 
-               <div className="space-y-4 mb-6">
-                 <div>
-                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                     Tài liệu đã chọn
-                   </label>
-                   <div className="text-sm bg-slate-50 p-3 rounded-lg border border-slate-100">
-                     {selectedDocs.length === 0 ? (
-                       <span className="text-gray-500 italic block text-center">Vui lòng chọn ít nhất 1 tài liệu ở bên trái</span>
-                     ) : (
-                       <div className="flex items-center gap-2 text-purple-700 font-medium">
-                         <FileText className="w-4 h-4" />
-                         <span>{selectedDocs.length} tài liệu được chọn</span>
-                       </div>
-                     )}
-                   </div>
-                 </div>
+              <p className="text-slate-600 text-sm mb-6 leading-relaxed">
+                Tạo tự động bộ câu hỏi trắc nghiệm từ các tài liệu bạn đã chọn. AI sẽ phân tích nội dung và sinh ra quiz cho bạn.
+              </p>
 
-                 <div>
-                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                     Số lượng câu hỏi
-                   </label>
-                   <input 
-                     type="number" 
-                     min="1" max="50"
-                     value={numQuestions}
-                     onChange={(e) => setNumQuestions(Number(e.target.value))}
-                     className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all"
-                   />
-                 </div>
+              <div className="space-y-4 mb-6">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Tài liệu đã chọn
+                  </label>
+                  <div className="text-sm bg-slate-50 p-3 rounded-lg border border-slate-100">
+                    {selectedDocs.length === 0 ? (
+                      <span className="text-gray-500 italic block text-center">Vui lòng chọn ít nhất 1 tài liệu ở bên trái</span>
+                    ) : (
+                      <div className="flex items-center gap-2 text-purple-700 font-medium">
+                        <FileText className="w-4 h-4" />
+                        <span>{selectedDocs.length} tài liệu được chọn</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
 
-                 <div>
-                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                     Độ khó
-                   </label>
-                   <select
-                     value={difficulty}
-                     onChange={(e) => setDifficulty(e.target.value)}
-                     className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all"
-                   >
-                     <option value="easy">Dễ</option>
-                     <option value="medium">Trung bình</option>
-                     <option value="hard">Khó</option>
-                   </select>
-                 </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Số lượng câu hỏi
+                  </label>
+                  <input
+                    type="number"
+                    min="1" max="50"
+                    value={numQuestions}
+                    onChange={(e) => setNumQuestions(Number(e.target.value))}
+                    className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all"
+                  />
+                </div>
 
-                 <div>
-                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                     Ghi chú thêm (tùy chọn)
-                   </label>
-                   <textarea
-                     value={additionalContext}
-                     onChange={(e) => setAdditionalContext(e.target.value)}
-                     placeholder="Ví dụ: Tập trung vào chương 1 và 2..."
-                     className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all h-24 resize-none"
-                   />
-                 </div>
-               </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Độ khó
+                  </label>
+                  <select
+                    value={difficulty}
+                    onChange={(e) => setDifficulty(e.target.value)}
+                    className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all"
+                  >
+                    <option value="easy">Dễ</option>
+                    <option value="medium">Trung bình</option>
+                    <option value="hard">Khó</option>
+                  </select>
+                </div>
 
-               {quizError && (
-                 <div className="mb-4 text-sm text-red-600 bg-red-50 p-3 rounded-xl border border-red-100 flex items-start gap-2">
-                   <XCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                   <span>{quizError}</span>
-                 </div>
-               )}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Ghi chú thêm (tùy chọn)
+                  </label>
+                  <textarea
+                    value={additionalContext}
+                    onChange={(e) => setAdditionalContext(e.target.value)}
+                    placeholder="Ví dụ: Tập trung vào chương 1 và 2..."
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all h-24 resize-none"
+                  />
+                </div>
+              </div>
 
-               <button 
-                 onClick={handleGenerateQuiz}
-                 disabled={isGenerating || selectedDocs.length === 0}
-                 className={`flex items-center justify-center gap-2 w-full px-5 py-3.5 text-sm font-bold text-white rounded-xl transition-all
-                   ${isGenerating || selectedDocs.length === 0 
-                     ? 'bg-purple-300 cursor-not-allowed' 
-                     : 'bg-purple-600 hover:bg-purple-700 hover:shadow-lg hover:-translate-y-0.5'
-                   }`}
-               >
-                 {isGenerating ? (
-                   <>
-                     <Loader2 className="w-5 h-5 animate-spin" />
-                     Đang phân tích & tạo Quiz...
-                   </>
-                 ) : (
-                   <>
-                     <Sparkles className="w-5 h-5" />
-                     Tạo Quiz Ngay
-                   </>
-                 )}
-               </button>
-               
-               <div className="mt-6 pt-5 border-t border-gray-100 text-center">
-                 <Link 
-                   href={`/quizzes`} 
-                   className="text-sm font-medium text-gray-500 hover:text-purple-600 transition-colors flex items-center justify-center gap-1"
-                 >
-                   Xem danh sách Quiz đã tạo <ArrowRight className="w-4 h-4" />
-                 </Link>
-               </div>
+              {quizError && (
+                <div className="mb-4 text-sm text-red-600 bg-red-50 p-3 rounded-xl border border-red-100 flex items-start gap-2">
+                  <XCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                  <span>{quizError}</span>
+                </div>
+              )}
+
+              <button
+                onClick={handleGenerateQuiz}
+                disabled={isGenerating || selectedDocs.length === 0}
+                className={`flex items-center justify-center gap-2 w-full px-5 py-3.5 text-sm font-bold text-white rounded-xl transition-all
+                   ${isGenerating || selectedDocs.length === 0
+                    ? 'bg-purple-300 cursor-not-allowed'
+                    : 'bg-purple-600 hover:bg-purple-700 hover:shadow-lg hover:-translate-y-0.5'
+                  }`}
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Đang phân tích & tạo Quiz...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-5 h-5" />
+                    Tạo Quiz Ngay
+                  </>
+                )}
+              </button>
+
+              <div className="mt-6 pt-5 border-t border-gray-100 text-center">
+                <Link
+                  href={`/quizzes`}
+                  className="text-sm font-medium text-gray-500 hover:text-purple-600 transition-colors flex items-center justify-center gap-1"
+                >
+                  Xem danh sách Quiz đã tạo <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
             </div>
           </div>
 
