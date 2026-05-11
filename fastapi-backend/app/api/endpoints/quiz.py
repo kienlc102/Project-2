@@ -121,7 +121,7 @@ def submit_quiz(request: QuizSubmitRequest):
         results=results,
     )
 
-@router.get("/{subject_id}")
+@router.get("/get-quiz-by-subject/{subject_id}")
 def get_quiz(subject_id: int, db: Session = Depends(get_db)):
     """
     Get a quiz by subject ID.
@@ -133,7 +133,7 @@ def get_quiz(subject_id: int, db: Session = Depends(get_db)):
     response = QuizGenerateResponse(questions=questions)
     return response 
 
-@router.get("/{id}", response_model=QuizGenerateResponse)
+@router.get("/get-quiz-by-id/{id}", response_model=QuizGenerateResponse)
 def get_quiz_by_id(id: int, db: Session = Depends(get_db)):
     """
     Get a quiz by ID.

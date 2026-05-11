@@ -43,7 +43,7 @@ export default function TakeQuiz() {
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
+
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitResult, setSubmitResult] = useState<QuizSubmitResponse | null>(null);
@@ -55,7 +55,7 @@ export default function TakeQuiz() {
       setLoading(true);
       setError('');
       try {
-        const res = await fetch(`http://localhost:8000/api/v1/quiz/${quizId}`);
+        const res = await fetch(`http://localhost:8000/api/v1/quiz/get-quiz-by-id/${quizId}`);
         if (!res.ok) {
           throw new Error(`Lỗi tải đề thi (${res.status})`);
         }
@@ -150,7 +150,7 @@ export default function TakeQuiz() {
   return (
     <div className="min-h-screen bg-gray-50 py-10 px-4">
       <div className="max-w-4xl mx-auto space-y-6">
-        
+
         {/* Header */}
         <div className="flex items-center justify-between">
           <Link
@@ -162,11 +162,11 @@ export default function TakeQuiz() {
 
           {submitResult && (
             <div className="bg-white px-5 py-2 rounded-full border border-green-200 shadow-sm flex items-center gap-3">
-               <span className="text-sm font-medium text-slate-500">Kết quả:</span>
-               <span className="text-lg font-bold text-green-600">{submitResult.score}/{submitResult.total}</span>
-               <span className="text-sm font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded">
-                 {submitResult.percentage}%
-               </span>
+              <span className="text-sm font-medium text-slate-500">Kết quả:</span>
+              <span className="text-lg font-bold text-green-600">{submitResult.score}/{submitResult.total}</span>
+              <span className="text-sm font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded">
+                {submitResult.percentage}%
+              </span>
             </div>
           )}
         </div>
@@ -187,24 +187,22 @@ export default function TakeQuiz() {
             const isCorrect = resultForQ?.is_correct;
 
             return (
-              <div 
-                key={idx} 
-                className={`bg-white rounded-3xl p-6 md:p-8 shadow-sm border transition ${
-                  isSubmitted 
-                    ? isCorrect 
-                      ? 'border-green-200 bg-green-50/30' 
-                      : 'border-red-200 bg-red-50/30'
-                    : 'border-slate-200'
-                }`}
+              <div
+                key={idx}
+                className={`bg-white rounded-3xl p-6 md:p-8 shadow-sm border transition ${isSubmitted
+                  ? isCorrect
+                    ? 'border-green-200 bg-green-50/30'
+                    : 'border-red-200 bg-red-50/30'
+                  : 'border-slate-200'
+                  }`}
               >
                 <div className="flex items-start gap-4 mb-6">
-                  <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
-                    isSubmitted
-                      ? isCorrect
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-red-100 text-red-700'
-                      : 'bg-blue-100 text-blue-700'
-                  }`}>
+                  <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${isSubmitted
+                    ? isCorrect
+                      ? 'bg-green-100 text-green-700'
+                      : 'bg-red-100 text-red-700'
+                    : 'bg-blue-100 text-blue-700'
+                    }`}>
                     {idx + 1}
                   </div>
                   <h3 className="text-lg font-medium text-slate-900 leading-relaxed mt-0.5">
@@ -215,7 +213,7 @@ export default function TakeQuiz() {
                 <div className="space-y-3 pl-12">
                   {q.options.map((opt) => {
                     const isSelected = selectedAns === opt.key;
-                    
+
                     let optionClass = 'border-slate-200 hover:border-blue-300 hover:bg-slate-50 text-slate-700';
                     if (isSelected) {
                       optionClass = 'border-blue-500 bg-blue-50 text-blue-800 ring-1 ring-blue-500';
@@ -243,7 +241,7 @@ export default function TakeQuiz() {
                           {opt.key}
                         </span>
                         <span className="flex-1">{opt.text}</span>
-                        
+
                         {isSubmitted && opt.key === q.correct_answer && (
                           <CheckCircle className="w-5 h-5 text-green-600" />
                         )}
