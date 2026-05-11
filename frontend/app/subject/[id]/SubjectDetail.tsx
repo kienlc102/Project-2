@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -13,7 +13,8 @@ import {
   FileText,
   FileCode,
   File,
-  ArrowRight
+  ArrowRight,
+  Sparkles
 } from 'lucide-react';
 
 interface SubjectDetail {
@@ -73,11 +74,20 @@ const formatBytes = (bytes: number, decimals = 2) => {
 export default function SubjectDetailComponent() {
   const params = useParams();
   const subjectId = params.id as string;
+  const router = useRouter();
 
   const [subject, setSubject] = useState<SubjectDetail | null>(null);
   const [featuredDocs, setFeaturedDocs] = useState<DocumentFeatured[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Quiz Form States
+  const [selectedDocs, setSelectedDocs] = useState<string[]>([]);
+  const [numQuestions, setNumQuestions] = useState(10);
+  const [difficulty, setDifficulty] = useState('medium');
+  const [additionalContext, setAdditionalContext] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [quizError, setQuizError] = useState('');
 
   useEffect(() => {
     if (!subjectId) return;
@@ -111,6 +121,52 @@ export default function SubjectDetailComponent() {
 
     fetchData();
   }, [subjectId]);
+
+  const toggleDocSelection = (docId: string) => {
+    setSelectedDocs(prev => 
+      prev.includes(docId) 
+        ? prev.filter(id => id !== docId)
+        : [...prev, docId]
+    );
+  };
+
+  const handleGenerateQuiz = async () => {
+    if (selectedDocs.length === 0) return;
+    
+    setIsGenerating(true);
+    setQuizError('');
+    
+    try {
+      const response = await fetch('http://localhost:8000/api/v1/quiz/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          document_ids: selectedDocs,
+          num_questions: numQuestions,
+          difficulty: difficulty,
+          additional_context: additionalContext || undefined
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.detail || 'Có lỗi xảy ra khi tạo quiz.');
+      }
+
+      const data = await response.json();
+      if (data.success && data.quiz_id) {
+        router.push(`/quizzes/${data.quiz_id}`);
+      } else {
+        throw new Error('Đã tạo quiz nhưng không nhận được ID quiz hợp lệ.');
+      }
+    } catch (err: any) {
+      setQuizError(err.message || 'Lỗi kết nối đến máy chủ.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -188,23 +244,41 @@ export default function SubjectDetailComponent() {
           <div className="lg:col-span-2 space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-bold text-slate-900">Tài liệu nổi bật</h2>
-              <Link 
-                href={`/search/subject/${subjectId}`}
-                className="text-sm font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1"
-              >
-                Xem tất cả <ArrowRight className="w-4 h-4" />
-              </Link>
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-gray-500">
+                  Đã chọn: <strong className="text-blue-600">{selectedDocs.length}</strong>
+                </span>
+                <Link 
+                  href={`/search/subject/${subjectId}`}
+                  className="text-sm font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                >
+                  Xem tất cả <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
             </div>
 
             {featuredDocs.length > 0 ? (
               <div className="grid gap-4 sm:grid-cols-2">
                 {featuredDocs.map(doc => (
-                  <Link 
+                  <div
                     key={doc.id}
-                    href={`/search/${doc.id}`}
-                    className="group flex flex-col bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-300 transition-all"
+                    className={`group flex flex-col bg-white rounded-2xl p-5 border transition-all cursor-pointer relative ${
+                      selectedDocs.includes(doc.id) 
+                        ? 'border-purple-500 shadow-md ring-1 ring-purple-500' 
+                        : 'border-slate-200 shadow-sm hover:shadow-md hover:border-blue-300'
+                    }`}
+                    onClick={() => toggleDocSelection(doc.id)}
                   >
-                    <div className="flex items-center gap-3 mb-3">
+                    <div className="absolute top-4 right-4">
+                      <input 
+                        type="checkbox" 
+                        className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500 cursor-pointer pointer-events-none"
+                        checked={selectedDocs.includes(doc.id)}
+                        readOnly
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-3 mb-3 pr-8">
                       <div className="p-2.5 bg-slate-50 rounded-xl group-hover:bg-blue-50 transition-colors">
                         {getDocIcon(doc.doc_type)}
                       </div>
@@ -212,14 +286,22 @@ export default function SubjectDetailComponent() {
                         {getTypeLabel(doc.doc_type)}
                       </span>
                     </div>
-                    <h3 className="font-semibold text-slate-900 line-clamp-2 mb-4 flex-1 group-hover:text-blue-600 transition-colors">
+
+                    <h3 className="font-semibold text-slate-900 line-clamp-2 mb-4 flex-1 group-hover:text-blue-600 transition-colors pr-6">
                       {doc.file_name}
                     </h3>
+
                     <div className="text-xs font-medium text-slate-500 pt-3 border-t border-slate-100 flex items-center justify-between">
                       <span>{formatBytes(doc.file_size)}</span>
-                      <span>ID: {doc.id.substring(0, 8)}...</span>
+                      <Link 
+                        href={`/search/${doc.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-blue-600 hover:text-blue-800 hover:underline z-10 font-semibold"
+                      >
+                        Chi tiết
+                      </Link>
                     </div>
-                  </Link>
+                  </div>
                 ))}
               </div>
             ) : (
@@ -240,18 +322,111 @@ export default function SubjectDetailComponent() {
           <div className="space-y-6">
             <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 sticky top-32">
                <div className="flex items-center gap-3 mb-4">
-                 <BookOpen className="w-6 h-6 text-purple-500" />
-                 <h3 className="text-lg font-bold text-slate-900">Trắc nghiệm</h3>
+                 <div className="p-2 bg-purple-100 rounded-lg">
+                    <Sparkles className="w-6 h-6 text-purple-600" />
+                 </div>
+                 <h3 className="text-lg font-bold text-slate-900">Tạo Quiz AI</h3>
                </div>
+               
                <p className="text-slate-600 text-sm mb-6 leading-relaxed">
-                 Kiểm tra và củng cố kiến thức môn <strong>{subject.subject_name}</strong> bằng hệ thống bài tập trắc nghiệm đa dạng được tổng hợp tự động.
+                 Tạo tự động bộ câu hỏi trắc nghiệm từ các tài liệu bạn đã chọn. AI sẽ phân tích nội dung và sinh ra quiz cho bạn.
                </p>
-               <Link 
-                 href={`/quizzes`} 
-                 className="inline-flex items-center justify-center gap-2 w-full px-5 py-3 text-sm font-bold bg-purple-600 text-white rounded-xl hover:bg-purple-700 hover:shadow-md transition-all"
+
+               <div className="space-y-4 mb-6">
+                 <div>
+                   <label className="block text-sm font-semibold text-gray-700 mb-2">
+                     Tài liệu đã chọn
+                   </label>
+                   <div className="text-sm bg-slate-50 p-3 rounded-lg border border-slate-100">
+                     {selectedDocs.length === 0 ? (
+                       <span className="text-gray-500 italic block text-center">Vui lòng chọn ít nhất 1 tài liệu ở bên trái</span>
+                     ) : (
+                       <div className="flex items-center gap-2 text-purple-700 font-medium">
+                         <FileText className="w-4 h-4" />
+                         <span>{selectedDocs.length} tài liệu được chọn</span>
+                       </div>
+                     )}
+                   </div>
+                 </div>
+
+                 <div>
+                   <label className="block text-sm font-semibold text-gray-700 mb-2">
+                     Số lượng câu hỏi
+                   </label>
+                   <input 
+                     type="number" 
+                     min="1" max="50"
+                     value={numQuestions}
+                     onChange={(e) => setNumQuestions(Number(e.target.value))}
+                     className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all"
+                   />
+                 </div>
+
+                 <div>
+                   <label className="block text-sm font-semibold text-gray-700 mb-2">
+                     Độ khó
+                   </label>
+                   <select
+                     value={difficulty}
+                     onChange={(e) => setDifficulty(e.target.value)}
+                     className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all"
+                   >
+                     <option value="easy">Dễ</option>
+                     <option value="medium">Trung bình</option>
+                     <option value="hard">Khó</option>
+                   </select>
+                 </div>
+
+                 <div>
+                   <label className="block text-sm font-semibold text-gray-700 mb-2">
+                     Ghi chú thêm (tùy chọn)
+                   </label>
+                   <textarea
+                     value={additionalContext}
+                     onChange={(e) => setAdditionalContext(e.target.value)}
+                     placeholder="Ví dụ: Tập trung vào chương 1 và 2..."
+                     className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all h-24 resize-none"
+                   />
+                 </div>
+               </div>
+
+               {quizError && (
+                 <div className="mb-4 text-sm text-red-600 bg-red-50 p-3 rounded-xl border border-red-100 flex items-start gap-2">
+                   <XCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                   <span>{quizError}</span>
+                 </div>
+               )}
+
+               <button 
+                 onClick={handleGenerateQuiz}
+                 disabled={isGenerating || selectedDocs.length === 0}
+                 className={`flex items-center justify-center gap-2 w-full px-5 py-3.5 text-sm font-bold text-white rounded-xl transition-all
+                   ${isGenerating || selectedDocs.length === 0 
+                     ? 'bg-purple-300 cursor-not-allowed' 
+                     : 'bg-purple-600 hover:bg-purple-700 hover:shadow-lg hover:-translate-y-0.5'
+                   }`}
                >
-                 Vào làm trắc nghiệm <ArrowRight className="w-4 h-4" />
-               </Link>
+                 {isGenerating ? (
+                   <>
+                     <Loader2 className="w-5 h-5 animate-spin" />
+                     Đang phân tích & tạo Quiz...
+                   </>
+                 ) : (
+                   <>
+                     <Sparkles className="w-5 h-5" />
+                     Tạo Quiz Ngay
+                   </>
+                 )}
+               </button>
+               
+               <div className="mt-6 pt-5 border-t border-gray-100 text-center">
+                 <Link 
+                   href={`/quizzes`} 
+                   className="text-sm font-medium text-gray-500 hover:text-purple-600 transition-colors flex items-center justify-center gap-1"
+                 >
+                   Xem danh sách Quiz đã tạo <ArrowRight className="w-4 h-4" />
+                 </Link>
+               </div>
             </div>
           </div>
 
