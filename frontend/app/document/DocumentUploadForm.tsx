@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
-import { uploadDocument, getUniversities, getSubjects } from "@/lib/documents";
+import { uploadDocument, getUniversities, getSubjects, generateAIFromDocument } from "@/lib/documents";
 import { getProfile, getToken } from "@/lib/auth";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -12,6 +12,10 @@ interface UploadResponse {
   document_id?: number;
   upload_status: boolean;
   detail?: string;
+  ai_generated?: {
+    flashcard_set_id: number | null;
+    quiz_id: number | null;
+  } | null;
 }
 
 export default function DocumentUploadForm() {
@@ -39,6 +43,30 @@ export default function DocumentUploadForm() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<UploadResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+
+  const handleRetryAI = async () => {
+    if (!result?.document_id) return;
+    setAiLoading(true);
+    try {
+      const res = await generateAIFromDocument(String(result.document_id));
+      if (res.ok) {
+        setResult({
+          ...result,
+          ai_generated: {
+            flashcard_set_id: res.data.flashcard_set_id,
+            quiz_id: res.data.quiz_id,
+          },
+        });
+      } else {
+        setError(res.data.detail || "AI vẫn đang bận, thử lại sau.");
+      }
+    } catch {
+      setError("Không thể kết nối đến Server.");
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   // --- HANDLERS ---
   const handleInputChange = (
@@ -544,6 +572,56 @@ export default function DocumentUploadForm() {
               <span style={{ fontSize: "12px", opacity: 0.8 }}>
                 Mã tài liệu (ID): {result.document_id}
               </span>
+              {result.ai_generated ? (
+                <div style={{ marginTop: "12px", padding: "12px", backgroundColor: "#ecfdf5", borderRadius: "8px", border: "1px solid #a7f3d0" }}>
+                  <strong style={{ fontSize: "14px", color: "#065f46" }}>🤖 AI đã tự động tạo:</strong>
+                  <div style={{ marginTop: "8px", display: "flex", gap: "12px", flexWrap: "wrap" }}>
+                    {result.ai_generated.flashcard_set_id && (
+                      <a
+                        href={`/flashcards/${result.ai_generated.flashcard_set_id}`}
+                        style={{
+                          display: "inline-flex", alignItems: "center", gap: "6px",
+                          padding: "8px 16px", backgroundColor: "#2563eb", color: "#fff",
+                          borderRadius: "6px", textDecoration: "none", fontSize: "13px", fontWeight: 600
+                        }}
+                      >
+                        📇 Xem Flashcard
+                      </a>
+                    )}
+                    {result.ai_generated.quiz_id && (
+                      <a
+                        href={`/quizzes/${result.ai_generated.quiz_id}`}
+                        style={{
+                          display: "inline-flex", alignItems: "center", gap: "6px",
+                          padding: "8px 16px", backgroundColor: "#7c3aed", color: "#fff",
+                          borderRadius: "6px", textDecoration: "none", fontSize: "13px", fontWeight: 600
+                        }}
+                      >
+                        📝 Xem Quiz
+                      </a>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div style={{ marginTop: "12px", padding: "12px", backgroundColor: "#fffbeb", borderRadius: "8px", border: "1px solid #fcd34d" }}>
+                  <strong style={{ fontSize: "14px", color: "#92400e" }}>⚠️ AI chưa tạo được flashcard/quiz</strong>
+                  <p style={{ fontSize: "12px", color: "#78350f", margin: "4px 0 8px 0" }}>
+                    AI đang bận (rate limit). Bấm nút bên dưới để thử lại.
+                  </p>
+                  <button
+                    onClick={handleRetryAI}
+                    disabled={aiLoading}
+                    style={{
+                      display: "inline-flex", alignItems: "center", gap: "6px",
+                      padding: "8px 16px", backgroundColor: aiLoading ? "#9ca3af" : "#f59e0b", color: "#fff",
+                      borderRadius: "6px", border: "none", fontSize: "13px", fontWeight: 600,
+                      cursor: aiLoading ? "not-allowed" : "pointer"
+                    }}
+                  >
+                    {aiLoading ? "⏳ Đang tạo..." : "🔄 Thử tạo Flashcard & Quiz"}
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>

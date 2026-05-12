@@ -278,6 +278,17 @@ export default function CreateQuizPage() {
             return;
           }
         }
+        const correctCount = q.options.filter((o) => o.isCorrect).length;
+        if (['multiple_choice', 'dropdown'].includes(q.type) && correctCount !== 1) {
+          setError(`Câu hỏi ${i + 1}: Vui lòng chọn đúng 1 đáp án đúng`);
+          setActiveId(q.id);
+          return;
+        }
+        if (q.type === 'checkboxes' && correctCount < 1) {
+          setError(`Câu hỏi ${i + 1}: Vui lòng chọn ít nhất 1 đáp án đúng`);
+          setActiveId(q.id);
+          return;
+        }
       }
     }
 

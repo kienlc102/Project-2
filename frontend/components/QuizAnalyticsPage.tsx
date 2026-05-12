@@ -17,6 +17,7 @@ import {
   ChevronRight,
   Clock,
 } from 'lucide-react';
+import { getToken } from '@/lib/auth';
 import {
   getQuizAnalytics,
   getQuizResponses,
@@ -42,7 +43,7 @@ export default function QuizAnalyticsPage() {
   }, [quizId]);
 
   const loadData = async () => {
-    const token = localStorage.getItem('token');
+    const token = getToken();
     if (!token) {
       router.push('/login');
       return;

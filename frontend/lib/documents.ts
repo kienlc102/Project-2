@@ -56,3 +56,14 @@ export const getSubjects = async (
   }
   return response.json();
 };
+
+export const generateAIFromDocument = async (documentId: string): Promise<{
+  ok: boolean;
+  data: any;
+}> => {
+  const response = await fetch(`${API_URL}/document/generate-ai/${documentId}`, {
+    method: 'POST',
+  });
+  const data = await response.json();
+  return { ok: response.ok, data };
+};

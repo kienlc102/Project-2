@@ -17,6 +17,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { getQuiz, submitQuiz, Quiz } from '@/lib/quizzes';
+import { getToken } from '@/lib/auth';
 
 export default function TakeQuizPage() {
   const params = useParams();
@@ -46,7 +47,7 @@ export default function TakeQuizPage() {
 
   const loadQuiz = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = getToken();
       if (!token) {
         router.push('/login');
         return;
@@ -94,7 +95,7 @@ export default function TakeQuizPage() {
   };
 
   const handleSubmit = async () => {
-    const token = localStorage.getItem('token');
+    const token = getToken();
     if (!token || !quiz?.questions) return;
 
     // Check required

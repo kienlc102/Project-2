@@ -385,26 +385,78 @@ export const updateQuiz = async (req: AuthRequest, res: Response) => {
       [title.trim(), description?.trim() || null, vis, quizId]
     );
 
-    await client.query(`DELETE FROM public.quiz_questions WHERE quiz_id = $1`, [quizId]);
+    // Collect IDs of questions being kept (sent from frontend with dbId)
+    const keptQuestionDbIds: number[] = questions
+      .map((q: any) => q.dbId)
+      .filter((id: any) => typeof id === 'number');
+
+    // Delete questions that are no longer in the submission (CASCADE deletes their answers + options)
+    if (keptQuestionDbIds.length > 0) {
+      await client.query(
+        `DELETE FROM public.quiz_questions WHERE quiz_id = $1 AND id != ALL($2)`,
+        [quizId, keptQuestionDbIds]
+      );
+    } else {
+      await client.query(`DELETE FROM public.quiz_questions WHERE quiz_id = $1`, [quizId]);
+    }
 
     for (let i = 0; i < questions.length; i++) {
       const q = questions[i];
-      const questionResult = await client.query(
-        `INSERT INTO public.quiz_questions (quiz_id, question_text, question_type, image_url, is_required, points, position)
-         VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
-        [quizId, q.questionText.trim(), q.questionType, q.imageUrl || null, q.isRequired || false, q.points || 1, i]
-      );
-      const questionId = questionResult.rows[0].id;
+      let questionId: number;
+
+      if (q.dbId) {
+        // Update existing question in place (preserves question_id → preserves quiz_answers)
+        await client.query(
+          `UPDATE public.quiz_questions SET question_text = $1, question_type = $2, image_url = $3, is_required = $4, points = $5, position = $6 WHERE id = $7 AND quiz_id = $8`,
+          [q.questionText.trim(), q.questionType, q.imageUrl || null, q.isRequired || false, q.points || 1, i, q.dbId, quizId]
+        );
+        questionId = q.dbId;
+      } else {
+        // Insert new question
+        const questionResult = await client.query(
+          `INSERT INTO public.quiz_questions (quiz_id, question_text, question_type, image_url, is_required, points, position)
+           VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
+          [quizId, q.questionText.trim(), q.questionType, q.imageUrl || null, q.isRequired || false, q.points || 1, i]
+        );
+        questionId = questionResult.rows[0].id;
+      }
 
       if (['multiple_choice', 'checkboxes', 'dropdown'].includes(q.questionType) && q.options) {
+        // Collect kept option IDs
+        const keptOptionDbIds: number[] = q.options
+          .map((o: any) => o.dbId)
+          .filter((id: any) => typeof id === 'number');
+
+        // Delete removed options
+        if (keptOptionDbIds.length > 0) {
+          await client.query(
+            `DELETE FROM public.quiz_options WHERE question_id = $1 AND id != ALL($2)`,
+            [questionId, keptOptionDbIds]
+          );
+        } else {
+          await client.query(`DELETE FROM public.quiz_options WHERE question_id = $1`, [questionId]);
+        }
+
         for (let j = 0; j < q.options.length; j++) {
           const opt = q.options[j];
-          await client.query(
-            `INSERT INTO public.quiz_options (question_id, option_text, is_correct, position)
-             VALUES ($1, $2, $3, $4)`,
-            [questionId, opt.text.trim(), opt.isCorrect || false, j]
-          );
+          if (opt.dbId) {
+            // Update existing option in place
+            await client.query(
+              `UPDATE public.quiz_options SET option_text = $1, is_correct = $2, position = $3 WHERE id = $4 AND question_id = $5`,
+              [opt.text.trim(), opt.isCorrect || false, j, opt.dbId, questionId]
+            );
+          } else {
+            // Insert new option
+            await client.query(
+              `INSERT INTO public.quiz_options (question_id, option_text, is_correct, position)
+               VALUES ($1, $2, $3, $4)`,
+              [questionId, opt.text.trim(), opt.isCorrect || false, j]
+            );
+          }
         }
+      } else {
+        // Not an option-based type anymore, remove old options
+        await client.query(`DELETE FROM public.quiz_options WHERE question_id = $1`, [questionId]);
       }
     }
 
@@ -545,7 +597,7 @@ export const submitQuiz = async (req: AuthRequest, res: Response) => {
     let totalPoints = 0;
 
     const attemptResult = await client.query(
-      `INSERT INTO public.quiz_attempts (quiz_id, user_id) RETURNING id`,
+      `INSERT INTO public.quiz_attempts (quiz_id, user_id) VALUES ($1, $2) RETURNING id`,
       [quizId, userId]
     );
     const attemptId = attemptResult.rows[0].id;
@@ -613,9 +665,9 @@ export const submitQuiz = async (req: AuthRequest, res: Response) => {
         percentage: totalPoints > 0 ? Math.round((totalScore / totalPoints) * 100) : 0,
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     await client.query('ROLLBACK');
-    console.error('Submit quiz error:', error);
+    console.error('Submit quiz error:', error?.message || error);
     res.status(500).json({ success: false, message: 'Lỗi máy chủ' });
   } finally {
     client.release();

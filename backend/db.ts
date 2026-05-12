@@ -5,8 +5,9 @@ dotenv.config();
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  // This is the critical part:
-  ssl: false 
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });
 
 // Đã fix lỗi TS7006: Khai báo rõ kiểu dữ liệu cho 'err' là 'Error'

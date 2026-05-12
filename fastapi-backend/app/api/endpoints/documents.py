@@ -4,7 +4,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status, Form, Query
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, text
 
 from app.db.database import get_db
 # Đảm bảo import đầy đủ các models
@@ -18,7 +18,7 @@ from app.services.document_processor import (
     chunk_document, 
     generate_embedding
 )
-
+from app.services.ai_generator import generate_flashcards_and_quiz
 router = APIRouter()
 
 UPLOAD_DIR = "uploads"
@@ -175,6 +175,16 @@ async def get_document_detail(
     # Lấy preview (200 ký tự đầu của nội dung OCR)
     preview = doc.ocr_content[:200] if doc.ocr_content else "Không có nội dung"
     
+    # Lấy flashcard/quiz AI đã tạo cho tài liệu này
+    flashcard_row = db.execute(
+        text("SELECT id FROM flashcard_sets WHERE document_id = :doc_id ORDER BY id DESC LIMIT 1"),
+        {"doc_id": doc_id}
+    ).fetchone()
+    quiz_row = db.execute(
+        text("SELECT id FROM quizzes WHERE document_id = :doc_id ORDER BY id DESC LIMIT 1"),
+        {"doc_id": doc_id}
+    ).fetchone()
+
     return {
         "id": str(doc.id),
         "file_name": doc.file_name,
@@ -185,7 +195,9 @@ async def get_document_detail(
         "subject": subject_info,
         "preview": preview,
         "total_content_length": len(doc.ocr_content) if doc.ocr_content else 0,
-        "file_path": doc.file_path
+        "file_path": doc.file_path,
+        "ai_flashcard_set_id": flashcard_row[0] if flashcard_row else None,
+        "ai_quiz_id": quiz_row[0] if quiz_row else None
     }
 
 @router.get("/subject/{subject_id}")
@@ -429,6 +441,108 @@ async def upload_document(
     # Chỉ gọi db.commit() một lần duy nhất ở đây cho TẤT CẢ
     db.commit() 
 
+    # =========================================================
+    # 5. GỌI AI (Google Gemini) TẠO FLASHCARD + QUIZ TỰ ĐỘNG
+    # =========================================================
+    ai_result = None
+    flashcard_set_id = None
+    quiz_id = None
+
+    try:
+        ai_result = await generate_flashcards_and_quiz(ocr_text, file.filename)
+    except Exception as e:
+        print(f"[Upload] Lỗi khi gọi AI Generator: {e}")
+
+    if ai_result:
+        try:
+            # --- Tạo Flashcard Set ---
+            flashcard_set_row = db.execute(
+                text("""
+                    INSERT INTO flashcard_sets (user_id, title, description, visibility, document_id)
+                    VALUES (:user_id, :title, :description, 'public', :document_id)
+                    RETURNING id
+                """),
+                {
+                    "user_id": owner_id,
+                    "title": ai_result.get("flashcard_title", f"Tóm tắt: {file.filename}")[:255],
+                    "description": ai_result.get("flashcard_description", "Tự động tạo bởi AI từ tài liệu"),
+                    "document_id": str(new_doc.id)
+                }
+            ).fetchone()
+            flashcard_set_id = flashcard_set_row[0] if flashcard_set_row else None
+
+            if flashcard_set_id and ai_result.get("flashcards"):
+                for idx, card in enumerate(ai_result["flashcards"]):
+                    db.execute(
+                        text("""
+                            INSERT INTO flashcards (set_id, term, definition, position)
+                            VALUES (:set_id, :term, :definition, :position)
+                        """),
+                        {
+                            "set_id": flashcard_set_id,
+                            "term": card.get("term", "")[:500],
+                            "definition": card.get("definition", "")[:1000],
+                            "position": idx
+                        }
+                    )
+
+            # --- Tạo Quiz ---
+            quiz_row = db.execute(
+                text("""
+                    INSERT INTO quizzes (user_id, title, description, visibility, document_id)
+                    VALUES (:user_id, :title, :description, 'public', :document_id)
+                    RETURNING id
+                """),
+                {
+                    "user_id": owner_id,
+                    "title": ai_result.get("quiz_title", f"Quiz: {file.filename}")[:255],
+                    "description": ai_result.get("quiz_description", "Tự động tạo bởi AI từ tài liệu"),
+                    "document_id": str(new_doc.id)
+                }
+            ).fetchone()
+            quiz_id = quiz_row[0] if quiz_row else None
+
+            if quiz_id and ai_result.get("questions"):
+                for q_idx, question in enumerate(ai_result["questions"]):
+                    q_row = db.execute(
+                        text("""
+                            INSERT INTO quiz_questions (quiz_id, question_text, question_type, position)
+                            VALUES (:quiz_id, :question_text, 'multiple_choice', :position)
+                            RETURNING id
+                        """),
+                        {
+                            "quiz_id": quiz_id,
+                            "question_text": question.get("question", "")[:1000],
+                            "position": q_idx
+                        }
+                    ).fetchone()
+                    question_id = q_row[0] if q_row else None
+
+                    if question_id and question.get("options"):
+                        correct_idx = question.get("correct_index", 0)
+                        for o_idx, option_text in enumerate(question["options"]):
+                            db.execute(
+                                text("""
+                                    INSERT INTO quiz_options (question_id, option_text, is_correct, position)
+                                    VALUES (:question_id, :option_text, :is_correct, :position)
+                                """),
+                                {
+                                    "question_id": question_id,
+                                    "option_text": option_text[:500],
+                                    "is_correct": (o_idx == correct_idx),
+                                    "position": o_idx
+                                }
+                            )
+
+            db.commit()
+            print(f"[Upload] AI đã tạo flashcard_set_id={flashcard_set_id}, quiz_id={quiz_id}")
+
+        except Exception as e:
+            db.rollback()
+            print(f"[Upload] Lỗi khi lưu AI content vào DB: {e}")
+            flashcard_set_id = None
+            quiz_id = None
+
     return {
         "message": "Upload và kiểm duyệt tài liệu thành công.",
         "document_id": new_doc.id,
@@ -437,5 +551,130 @@ async def upload_document(
         "subject_id": new_doc.subject_id, 
         "doc_type": new_doc.doc_type,    
         "total_chunks_processed": len(chunks),
-        "upload_status": True
+        "upload_status": True,
+        "ai_generated": {
+            "flashcard_set_id": flashcard_set_id,
+            "quiz_id": quiz_id
+        } if (flashcard_set_id or quiz_id) else None
+    }
+
+
+@router.post("/generate-ai/{doc_id}")
+async def generate_ai_from_document(
+    doc_id: str,
+    db: Session = Depends(get_db)
+):
+    """
+    Tạo flashcard + quiz bằng AI từ tài liệu đã upload.
+    Dùng khi auto-generate lúc upload thất bại (rate limit, v.v.).
+    """
+    doc = db.query(Document).filter(Document.id == doc_id).first()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Tài liệu không tìm thấy.")
+
+    if not doc.ocr_content or not doc.ocr_content.strip():
+        raise HTTPException(status_code=400, detail="Tài liệu không có nội dung text để generate.")
+
+    ai_result = None
+    try:
+        ai_result = await generate_flashcards_and_quiz(doc.ocr_content, doc.file_name)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Lỗi khi gọi AI: {str(e)}")
+
+    if not ai_result:
+        raise HTTPException(status_code=503, detail="AI đang bận (rate limit). Vui lòng thử lại sau 30 giây.")
+
+    flashcard_set_id = None
+    quiz_id = None
+
+    try:
+        # Tạo Flashcard Set
+        flashcard_set_row = db.execute(
+            text("""
+                INSERT INTO flashcard_sets (user_id, title, description, visibility, document_id)
+                VALUES (:user_id, :title, :description, 'public', :document_id)
+                RETURNING id
+            """),
+            {
+                "user_id": doc.owner_id,
+                "title": ai_result.get("flashcard_title", f"Tóm tắt: {doc.file_name}")[:255],
+                "description": ai_result.get("flashcard_description", "Tự động tạo bởi AI từ tài liệu"),
+                "document_id": str(doc.id)
+            }
+        ).fetchone()
+        flashcard_set_id = flashcard_set_row[0] if flashcard_set_row else None
+
+        if flashcard_set_id and ai_result.get("flashcards"):
+            for idx, card in enumerate(ai_result["flashcards"]):
+                db.execute(
+                    text("""
+                        INSERT INTO flashcards (set_id, term, definition, position)
+                        VALUES (:set_id, :term, :definition, :position)
+                    """),
+                    {
+                        "set_id": flashcard_set_id,
+                        "term": card.get("term", "")[:500],
+                        "definition": card.get("definition", "")[:1000],
+                        "position": idx
+                    }
+                )
+
+        # Tạo Quiz
+        quiz_row = db.execute(
+            text("""
+                INSERT INTO quizzes (user_id, title, description, visibility, document_id)
+                VALUES (:user_id, :title, :description, 'public', :document_id)
+                RETURNING id
+            """),
+            {
+                "user_id": doc.owner_id,
+                "title": ai_result.get("quiz_title", f"Quiz: {doc.file_name}")[:255],
+                "description": ai_result.get("quiz_description", "Tự động tạo bởi AI từ tài liệu"),
+                "document_id": str(doc.id)
+            }
+        ).fetchone()
+        quiz_id = quiz_row[0] if quiz_row else None
+
+        if quiz_id and ai_result.get("questions"):
+            for q_idx, question in enumerate(ai_result["questions"]):
+                q_row = db.execute(
+                    text("""
+                        INSERT INTO quiz_questions (quiz_id, question_text, question_type, position)
+                        VALUES (:quiz_id, :question_text, 'multiple_choice', :position)
+                        RETURNING id
+                    """),
+                    {
+                        "quiz_id": quiz_id,
+                        "question_text": question.get("question", "")[:1000],
+                        "position": q_idx
+                    }
+                ).fetchone()
+                question_id = q_row[0] if q_row else None
+
+                if question_id and question.get("options"):
+                    correct_idx = question.get("correct_index", 0)
+                    for o_idx, option_text in enumerate(question["options"]):
+                        db.execute(
+                            text("""
+                                INSERT INTO quiz_options (question_id, option_text, is_correct, position)
+                                VALUES (:question_id, :option_text, :is_correct, :position)
+                            """),
+                            {
+                                "question_id": question_id,
+                                "option_text": option_text[:500],
+                                "is_correct": (o_idx == correct_idx),
+                                "position": o_idx
+                            }
+                        )
+
+        db.commit()
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Lỗi khi lưu vào DB: {str(e)}")
+
+    return {
+        "message": "AI đã tạo flashcard và quiz thành công!",
+        "flashcard_set_id": flashcard_set_id,
+        "quiz_id": quiz_id
     }

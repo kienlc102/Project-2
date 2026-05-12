@@ -15,7 +15,9 @@ import {
   Eye,
   Calendar,
   HardDrive,
-  Book
+  Book,
+  Brain,
+  ClipboardList
 } from 'lucide-react';
 
 // Dùng next/dynamic để TẮT SSR cho component chứa react-pdf
@@ -44,6 +46,8 @@ interface DocumentDetail {
   preview: string;
   total_content_length: number;
   file_path: string;
+  ai_flashcard_set_id?: number | null;
+  ai_quiz_id?: number | null;
 }
 
 // --- CÁC HÀM HELPER ---
@@ -327,6 +331,37 @@ function DocumentDetailContent() {
                     <BookOpen className="h-4 w-4" />
                     Xem tất cả tài liệu môn này
                   </Link>
+                </div>
+              </div>
+            )}
+
+            {/* Card 3: AI Flashcard & Quiz */}
+            {(doc.ai_flashcard_set_id || doc.ai_quiz_id) && (
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div className="p-4 border-b border-gray-100 flex items-center gap-2 bg-gradient-to-r from-purple-50 to-blue-50">
+                  <Brain className="h-5 w-5 text-purple-600" />
+                  <h3 className="text-base font-semibold text-gray-900">Flashcard & Quiz AI</h3>
+                </div>
+                <div className="p-5 space-y-3">
+                  <p className="text-xs text-gray-500 mb-2">Được tạo tự động bởi AI từ nội dung tài liệu</p>
+                  {doc.ai_flashcard_set_id && (
+                    <Link
+                      href={`/flashcards/${doc.ai_flashcard_set_id}`}
+                      className="flex items-center justify-center gap-2 w-full px-4 py-2.5 text-sm bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium shadow-sm"
+                    >
+                      <BookOpen className="h-4 w-4" />
+                      Xem Flashcard
+                    </Link>
+                  )}
+                  {doc.ai_quiz_id && (
+                    <Link
+                      href={`/quizzes/${doc.ai_quiz_id}`}
+                      className="flex items-center justify-center gap-2 w-full px-4 py-2.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm"
+                    >
+                      <ClipboardList className="h-4 w-4" />
+                      Xem Quiz
+                    </Link>
+                  )}
                 </div>
               </div>
             )}

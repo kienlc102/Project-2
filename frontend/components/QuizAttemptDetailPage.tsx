@@ -14,6 +14,7 @@ import {
   Trophy,
 } from 'lucide-react';
 import { getResponseDetail } from '@/lib/quizzes';
+import { getToken } from '@/lib/auth';
 
 export default function ResponseDetailPage() {
   const params = useParams();
@@ -30,7 +31,7 @@ export default function ResponseDetailPage() {
   }, [quizId, attemptId]);
 
   const loadData = async () => {
-    const token = localStorage.getItem('token');
+    const token = getToken();
     if (!token) {
       router.push('/login');
       return;

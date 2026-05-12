@@ -17,12 +17,14 @@ import {
 // ============================================
 interface QuizOptionDraft {
   id: string;
+  dbId?: number;
   text: string;
   isCorrect: boolean;
 }
 
 interface QuizQuestionDraft {
   id: string;
+  dbId?: number;
   text: string;
   type: 'multiple_choice' | 'checkboxes' | 'short_answer' | 'paragraph' | 'dropdown';
   imageUrl: string;
@@ -111,6 +113,7 @@ export default function EditQuizPage() {
           setQuestions(
             (res.data.questions || []).map((q: any) => ({
               id: genId(),
+              dbId: q.id,
               text: q.question_text,
               type: q.question_type,
               imageUrl: q.image_url || '',
@@ -119,6 +122,7 @@ export default function EditQuizPage() {
               points: q.points,
               options: (q.options || []).map((o: any) => ({
                 id: genId(),
+                dbId: o.id,
                 text: o.option_text,
                 isCorrect: o.is_correct,
               })),
@@ -330,6 +334,17 @@ export default function EditQuizPage() {
             return;
           }
         }
+        const correctCount = q.options.filter((o) => o.isCorrect).length;
+        if (['multiple_choice', 'dropdown'].includes(q.type) && correctCount !== 1) {
+          setError(`Câu hỏi ${i + 1}: Vui lòng chọn đúng 1 đáp án đúng`);
+          setActiveId(q.id);
+          return;
+        }
+        if (q.type === 'checkboxes' && correctCount < 1) {
+          setError(`Câu hỏi ${i + 1}: Vui lòng chọn ít nhất 1 đáp án đúng`);
+          setActiveId(q.id);
+          return;
+        }
       }
     }
 
@@ -346,13 +361,14 @@ export default function EditQuizPage() {
         description: description.trim() || undefined,
         visibility,
         questions: questions.map((q) => ({
+          dbId: q.dbId || undefined,
           questionText: q.text,
           questionType: q.type,
           imageUrl: q.imageUrl || undefined,
           isRequired: q.isRequired,
           points: q.points,
           options: ['multiple_choice', 'checkboxes', 'dropdown'].includes(q.type)
-            ? q.options.map((o) => ({ text: o.text, isCorrect: o.isCorrect }))
+            ? q.options.map((o) => ({ text: o.text, isCorrect: o.isCorrect, dbId: o.dbId || undefined }))
             : undefined,
         })),
       });
