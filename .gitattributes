@@ -1,0 +1,69 @@
+# ============================================================
+# .gitattributes — Merge strategy cho branch long
+#
+# Các file được đánh dấu "merge=ours" sẽ luôn giữ nguyên
+# phiên bản của branch long khi merge từ origin/main.
+#
+# SETUP (chạy 1 lần):
+#   git config merge.ours.driver true
+# Hoặc chạy: scripts/setup-merge-protection.ps1
+# ============================================================
+
+# -------------------------------------------------------
+# FastAPI backend — DB config (NeonDB auto-detect, relative .env path)
+# -------------------------------------------------------
+fastapi-backend/app/core/config.py              merge=ours
+fastapi-backend/app/db/database.py              merge=ours
+fastapi-backend/app/api/router.py               merge=ours
+fastapi-backend/app/api/endpoints/subjects.py   merge=ours
+fastapi-backend/app/api/endpoints/documents.py  merge=ours
+fastapi-backend/app/services/document_processor.py merge=ours
+fastapi-backend/app/main.py                     merge=ours
+
+# -------------------------------------------------------
+# FastAPI backend — AI generation (proxy + endpoint)
+# -------------------------------------------------------
+fastapi-backend/app/services/ai_generator.py       merge=ours
+fastapi-backend/app/api/endpoints/ai_generate.py   merge=ours
+fastapi-backend/app/services/quiz_generator.py     merge=ours
+
+# -------------------------------------------------------
+# FastAPI backend — Quiz model/schema/endpoint
+# -------------------------------------------------------
+fastapi-backend/app/api/endpoints/quiz.py   merge=ours
+fastapi-backend/app/models/quiz.py          merge=ours
+fastapi-backend/app/schemas/quiz.py         merge=ours
+
+# -------------------------------------------------------
+# Node.js backend — DB config (NeonDB SSL)
+# -------------------------------------------------------
+backend/db.ts                               merge=ours
+
+# -------------------------------------------------------
+# Node.js backend — Quiz microservice (toàn bộ)
+# -------------------------------------------------------
+backend/quiz-service/**                     merge=ours
+
+# -------------------------------------------------------
+# Frontend — Quiz pages & components
+# -------------------------------------------------------
+frontend/app/quizzes/**                     merge=ours
+frontend/components/QuizListPage.tsx        merge=ours
+frontend/components/QuizCreatePage.tsx      merge=ours
+frontend/components/QuizDetailPage.tsx      merge=ours
+frontend/components/QuizEditPage.tsx        merge=ours
+frontend/components/QuizTakePage.tsx        merge=ours
+frontend/components/QuizAnalyticsPage.tsx   merge=ours
+frontend/components/QuizAttemptDetailPage.tsx merge=ours
+frontend/lib/quizzes.ts                     merge=ours
+
+# -------------------------------------------------------
+# Frontend — Flashcard pages & components
+# -------------------------------------------------------
+frontend/app/flashcards/**                  merge=ours
+frontend/components/FlashcardListPage.tsx   merge=ours
+frontend/components/FlashcardCreatePage.tsx merge=ours
+frontend/components/FlashcardEditPage.tsx   merge=ours
+frontend/components/FlashcardStudyPage.tsx  merge=ours
+frontend/lib/flashcards.ts                  merge=ours
+frontend/lib/auth.ts                        merge=ours

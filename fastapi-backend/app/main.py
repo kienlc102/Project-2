@@ -1,3 +1,5 @@
+import asyncio
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
@@ -15,9 +17,17 @@ from app.models.subject import Subject
 # Lệnh này sẽ tạo các bảng trong DB (Trong thực tế thường dùng Alembic để migrate DB)
 Base.metadata.create_all(bind=engine)
 
-
+# Preload SentenceTransformer model in a background thread at startup
+# so the first upload request doesn't block the event loop
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    loop = asyncio.get_running_loop()
+    from app.services.document_processor import _get_embedding_model
+    await loop.run_in_executor(None, _get_embedding_model)
+    yield
 
 app = FastAPI(
+    lifespan=lifespan,
     title=settings.PROJECT_NAME,
     openapi_url=f"{settings.API_V1_STR}/openapi.json"
 )

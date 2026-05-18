@@ -59,7 +59,7 @@ export default function DocumentUploadForm() {
           },
         });
       } else {
-        setError(res.data.detail || "AI vẫn đang bận, thử lại sau.");
+        setError(res.data.error || res.data.detail || "AI vẫn đang bận, thử lại sau.");
       }
     } catch {
       setError("Không thể kết nối đến Server.");
@@ -203,7 +203,28 @@ export default function DocumentUploadForm() {
         throw new Error(response.data.detail || "Đã xảy ra lỗi khi upload");
       }
 
+      // Show upload result first, then auto-trigger AI generation
       setResult(response.data);
+
+      if (response.data.document_id) {
+        setAiLoading(true);
+        try {
+          const aiRes = await generateAIFromDocument(String(response.data.document_id));
+          if (aiRes.ok) {
+            setResult((prev: any) => ({
+              ...prev,
+              ai_generated: {
+                flashcard_set_id: aiRes.data.flashcard_set_id,
+                quiz_id: aiRes.data.quiz_id,
+              },
+            }));
+          }
+        } catch {
+          // AI generation failed silently — user can retry manually
+        } finally {
+          setAiLoading(false);
+        }
+      }
     } catch (err: any) {
       setError(err.message || "Không thể kết nối đến Server");
     } finally {
@@ -560,7 +581,7 @@ export default function DocumentUploadForm() {
           {/* Khu vực hiển thị thông báo lỗi / thành công */}
           {error && (
             <div className="upload-alert error">
-              <strong>Lỗi Upload</strong>
+              <strong>{result ? "Lỗi tạo Flashcard/Quiz" : "Lỗi Upload"}</strong>
               {error}
             </div>
           )}

@@ -1,8 +1,24 @@
 """
 Migration: Add subject_id and doc_type columns to documents table
+Standalone version — reads DATABASE_URL from fastapi-backend/.env or environment.
 """
-from app.db.database import engine
-from sqlalchemy import text
+import os
+from sqlalchemy import create_engine, text
+from dotenv import load_dotenv
+
+# Load .env from fastapi-backend if present
+_base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+_env_path = os.path.join(_base_dir, "fastapi-backend", ".env")
+if os.path.exists(_env_path):
+    load_dotenv(_env_path)
+else:
+    load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL not set")
+
+engine = create_engine(DATABASE_URL)
 
 def migrate():
     with engine.connect() as conn:
