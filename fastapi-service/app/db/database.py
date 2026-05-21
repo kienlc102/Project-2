@@ -2,7 +2,12 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from app.core.config import settings
 
-engine = create_engine(settings.DATABASE_URL)
+# Auto-detect: NeonDB cần SSL, PostgreSQL local thì không
+connect_args = {}
+if "neon.tech" in settings.DATABASE_URL:
+    connect_args["sslmode"] = "require"
+
+engine = create_engine(settings.DATABASE_URL, connect_args=connect_args)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

@@ -1,5 +1,6 @@
 import os
 import uuid
+import asyncio
 from typing import Optional
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, status, Form, Query
 from fastapi.responses import FileResponse
@@ -401,7 +402,9 @@ async def upload_document(
     # ---------------------------------------------------------
     # 3. LỚP KIỂM TRA 2: SEMANTIC CHECK (Trùng lặp ngữ nghĩa)
     # ---------------------------------------------------------
-    embeddings = [generate_embedding(chunk) for chunk in chunks]
+    # Run CPU-bound embedding generation in a thread so it doesn't block the event loop
+    loop = asyncio.get_running_loop()
+    embeddings = await loop.run_in_executor(None, lambda: [generate_embedding(chunk) for chunk in chunks])
     first_chunk_vector = embeddings[0]
     
     SIMILARITY_THRESHOLD = 0.15 

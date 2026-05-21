@@ -5,9 +5,11 @@ from PIL import Image
 import pytesseract
 from sentence_transformers import SentenceTransformer
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from functools import lru_cache
 
-# Load embedding model (384 dimensions)
-embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+@lru_cache(maxsize=1)
+def _get_embedding_model():
+    return SentenceTransformer('all-MiniLM-L6-v2')
 
 def calculate_hash(file_bytes: bytes) -> str:
     """Tạo mã băm SHA-256 để kiểm tra trùng lặp file ở mức độ byte."""
@@ -66,4 +68,4 @@ def chunk_document(text: str, chunk_size: int = 500, chunk_overlap: int = 50) ->
 
 def generate_embedding(text: str) -> list[float]:
     """Biến đổi text thành vector 384 chiều."""
-    return embedding_model.encode(text).tolist()
+    return _get_embedding_model().encode(text).tolist()

@@ -7,11 +7,9 @@ import { getToken } from '@/lib/auth';
 import { getQuiz, deleteQuiz, Quiz } from '@/lib/quizzes';
 import {
   ArrowLeft, Edit, Trash2, Globe, Lock, User, ClipboardList,
-  Loader2, Circle, Square, List, AlignLeft, Check, Link2, CheckCircle,
+  Loader2, Link2, CheckCircle,
   Copy, Play, BarChart3,
 } from 'lucide-react';
-
-const API_BASE = process.env.NEXT_PUBLIC_QUIZ_API_URL?.replace('/api', '') || 'http://localhost:5003';
 
 export default function QuizDetailPage() {
   const params = useParams();
@@ -81,17 +79,6 @@ export default function QuizDetailPage() {
       setError('Lỗi kết nối máy chủ');
     }
     setDeleting(false);
-  };
-
-  const typeLabel = (type: string) => {
-    const map: Record<string, string> = {
-      multiple_choice: 'Trắc nghiệm',
-      checkboxes: 'Hộp kiểm',
-      short_answer: 'Trả lời ngắn',
-      paragraph: 'Đoạn văn',
-      dropdown: 'Danh sách thả xuống',
-    };
-    return map[type] || type;
   };
 
   if (loading) {
@@ -224,119 +211,45 @@ export default function QuizDetailPage() {
           </div>
         </div>
 
-        {/* Questions */}
-        {quiz.questions?.map((question, qIndex) => (
-          <div
-            key={question.id}
-            className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
-          >
-            <div className="p-6">
-              {/* Question header */}
-              <div className="flex items-start justify-between gap-3">
-                <p className="text-base text-gray-800 flex-1">
-                  {question.question_text}
-                  {question.is_required && <span className="text-red-500 ml-1">*</span>}
-                </p>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">
-                    {typeLabel(question.question_type)}
-                  </span>
-                  <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded font-medium">
-                    {question.points} điểm
-                  </span>
-                </div>
-              </div>
-
-              {/* Question image */}
-              {question.image_url && (
-                <div className="mt-3">
-                  <img
-                    src={`${API_BASE}${question.image_url}`}
-                    alt="Question"
-                    className="max-h-60 w-auto rounded-lg border border-gray-200 object-contain"
-                  />
-                </div>
-              )}
-
-              {/* Options */}
-              <div className="mt-4">
-                {['multiple_choice', 'checkboxes', 'dropdown'].includes(question.question_type) ? (
-                  <div className="space-y-2">
-                    {question.options.map((option, oIndex) => (
-                      <div key={option.id} className="flex items-center gap-3">
-                        {question.question_type === 'dropdown' ? (
-                          <span className="text-sm text-gray-500 w-5 text-right">{oIndex + 1}.</span>
-                        ) : question.question_type === 'checkboxes' ? (
-                          option.is_correct ? (
-                            <div className="w-[18px] h-[18px] rounded-sm bg-blue-600 flex items-center justify-center flex-shrink-0">
-                              <Check className="w-3 h-3 text-white" />
-                            </div>
-                          ) : (
-                            <div className="w-[18px] h-[18px] rounded-sm border-2 border-gray-400 flex-shrink-0" />
-                          )
-                        ) : option.is_correct ? (
-                          <div className="w-[18px] h-[18px] rounded-full border-2 border-blue-600 flex items-center justify-center flex-shrink-0">
-                            <div className="w-[10px] h-[10px] rounded-full bg-blue-600" />
-                          </div>
-                        ) : (
-                          <div className="w-[18px] h-[18px] rounded-full border-2 border-gray-400 flex-shrink-0" />
-                        )}
-                        <span className={`text-sm ${option.is_correct ? 'text-blue-700 font-medium' : 'text-gray-700'}`}>
-                          {option.option_text}
-                        </span>
-                        {option.is_correct && question.question_type === 'dropdown' && (
-                          <Check className="w-4 h-4 text-green-600" />
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ) : question.question_type === 'short_answer' ? (
-                  <div className="border-b border-dotted border-gray-300 pb-1">
-                    <span className="text-sm text-gray-400">Văn bản câu trả lời ngắn</span>
-                  </div>
-                ) : (
-                  <div>
-                    <div className="border-b border-dotted border-gray-300 pb-1">
-                      <span className="text-sm text-gray-400">Văn bản câu trả lời dài</span>
-                    </div>
-                    <div className="border-b border-dotted border-gray-300 mt-4" />
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        ))}
-
-        {/* Action Buttons Bottom Section */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+        {/* Start Quiz Card */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
+          <p className="text-gray-600 mb-6">
+            Quiz có <span className="font-semibold text-gray-900">{quiz.questions?.length || 0} câu hỏi</span> với tổng{' '}
+            <span className="font-semibold text-gray-900">
+              {quiz.questions?.reduce((sum, q) => sum + q.points, 0) || 0} điểm
+            </span>.
+            Nhấn bắt đầu để làm bài.
+          </p>
           <Link
             href={`/quizzes/${quizId}/take`}
-            className="inline-flex items-center gap-2 px-8 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition mb-4"
+            className="inline-flex items-center gap-2 px-10 py-4 bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold text-lg transition shadow-sm mb-6"
           >
-            <Play className="w-5 h-5" />
+            <Play className="w-6 h-6" />
             Bắt đầu làm bài
           </Link>
-          <p className="text-sm text-gray-500 mb-3">Hoặc chia sẻ quiz này với người khác</p>
-          <button
-            onClick={handleCopyLink}
-            className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition ${
-              copied
-                ? 'bg-green-100 text-green-700 border border-green-300'
-                : 'bg-blue-600 hover:bg-blue-700 text-white'
-            }`}
-          >
-            {copied ? (
-              <>
-                <CheckCircle className="w-5 h-5" />
-                Đã copy link!
-              </>
-            ) : (
-              <>
-                <Copy className="w-5 h-5" />
-                Copy link chia sẻ
-              </>
-            )}
-          </button>
+          <div>
+            <p className="text-sm text-gray-500 mb-3">Hoặc chia sẻ quiz này với người khác</p>
+            <button
+              onClick={handleCopyLink}
+              className={`inline-flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition ${
+                copied
+                  ? 'bg-green-100 text-green-700 border border-green-300'
+                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+              }`}
+            >
+              {copied ? (
+                <>
+                  <CheckCircle className="w-5 h-5" />
+                  Đã copy link!
+                </>
+              ) : (
+                <>
+                  <Copy className="w-5 h-5" />
+                  Copy link chia sẻ
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>

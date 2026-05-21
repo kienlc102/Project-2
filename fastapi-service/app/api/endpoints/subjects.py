@@ -9,7 +9,6 @@ from sqlalchemy import func
 from app.db.database import get_db
 from app.models.subject import Subject
 from app.models.university import University
-from app.models.quiz import Quiz
 from app.schemas.subject import SubjectFeatured, SubjectDetail   
 
 router = APIRouter()
