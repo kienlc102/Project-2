@@ -22,7 +22,7 @@ interface QuizGenerateResponse {
 }
 
 interface QuizSubmitResult {
-  question_index: int;
+  question_index: number;
   is_correct: boolean;
   selected_key?: string;
   correct_key: string;
@@ -122,23 +122,24 @@ export default function TakeQuiz() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin text-blue-600 mb-4" />
-        <p className="text-gray-600">Đang tải đề thi...</p>
+      <div className="min-h-screen bg-[#0B0F19] flex flex-col items-center justify-center">
+        <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-6"></div>
+        <p className="text-slate-400 font-medium">Đang tải đề thi...</p>
       </div>
     );
   }
 
   if (error && !questions.length) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-2xl p-8 text-center shadow-sm border border-red-100">
-          <XCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Không thể tải đề thi</h2>
-          <p className="text-gray-600 mb-6">{error}</p>
+      <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center p-4 relative overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-rose-600/10 blur-[120px] pointer-events-none" />
+        <div className="max-w-md w-full bg-white/5 backdrop-blur-xl rounded-3xl p-8 text-center shadow-2xl border border-white/10 relative z-10">
+          <XCircle className="w-16 h-16 text-rose-500 mx-auto mb-6" />
+          <h2 className="text-2xl font-bold text-white mb-3">Không thể tải đề thi</h2>
+          <p className="text-slate-400 mb-8">{error}</p>
           <Link
             href="/quizzes"
-            className="inline-flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition font-medium"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/10 text-white rounded-xl transition font-medium"
           >
             <ArrowLeft className="w-4 h-4" /> Về danh sách
           </Link>
@@ -148,23 +149,27 @@ export default function TakeQuiz() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div className="min-h-screen bg-[#0B0F19] py-10 px-4 relative overflow-hidden">
+      {/* Background Orbs */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-600/10 blur-[120px] pointer-events-none" />
+      <div className="absolute top-[20%] right-[-10%] w-[30%] h-[30%] rounded-full bg-fuchsia-600/10 blur-[120px] pointer-events-none" />
+      
+      <div className="max-w-4xl mx-auto space-y-8 relative z-10">
 
         {/* Header */}
         <div className="flex items-center justify-between">
           <Link
             href="/quizzes"
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-white rounded-full border border-transparent hover:border-slate-200 transition"
+            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all"
           >
             <ArrowLeft className="w-4 h-4" /> Quay lại
           </Link>
 
           {submitResult && (
-            <div className="bg-white px-5 py-2 rounded-full border border-green-200 shadow-sm flex items-center gap-3">
-              <span className="text-sm font-medium text-slate-500">Kết quả:</span>
-              <span className="text-lg font-bold text-green-600">{submitResult.score}/{submitResult.total}</span>
-              <span className="text-sm font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded">
+            <div className="bg-white/5 backdrop-blur-md px-6 py-3 rounded-xl border border-emerald-500/20 shadow-lg flex items-center gap-4">
+              <span className="text-sm font-medium text-slate-400">Kết quả:</span>
+              <span className="text-xl font-bold text-emerald-400">{submitResult.score}/{submitResult.total}</span>
+              <span className="text-sm font-bold bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 px-3 py-1 rounded-lg">
                 {submitResult.percentage}%
               </span>
             </div>
@@ -173,13 +178,14 @@ export default function TakeQuiz() {
 
         {/* Cảnh báo lỗi nộp bài nếu có */}
         {error && questions.length > 0 && (
-          <div className="bg-red-50 text-red-600 p-4 rounded-xl border border-red-100 text-sm">
+          <div className="bg-rose-500/10 text-rose-400 p-5 rounded-2xl border border-rose-500/20 text-sm font-medium flex items-center gap-3">
+            <XCircle className="w-5 h-5 shrink-0" />
             {error}
           </div>
         )}
 
         {/* Danh sách câu hỏi */}
-        <div className="space-y-6">
+        <div className="space-y-8">
           {questions.map((q, idx) => {
             const isSubmitted = !!submitResult;
             const selectedAns = answers[idx];
@@ -189,44 +195,50 @@ export default function TakeQuiz() {
             return (
               <div
                 key={idx}
-                className={`bg-white rounded-3xl p-6 md:p-8 shadow-sm border transition ${isSubmitted
+                className={`bg-white/5 backdrop-blur-xl rounded-3xl p-6 md:p-8 shadow-xl transition-all duration-300 ${isSubmitted
                   ? isCorrect
-                    ? 'border-green-200 bg-green-50/30'
-                    : 'border-red-200 bg-red-50/30'
-                  : 'border-slate-200'
+                    ? 'border border-emerald-500/30 bg-emerald-500/[0.02]'
+                    : 'border border-rose-500/30 bg-rose-500/[0.02]'
+                  : 'border border-white/10 hover:border-white/20'
                   }`}
               >
-                <div className="flex items-start gap-4 mb-6">
-                  <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${isSubmitted
+                <div className="flex items-start gap-5 mb-8">
+                  <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center font-bold text-base shadow-sm ${isSubmitted
                     ? isCorrect
-                      ? 'bg-green-100 text-green-700'
-                      : 'bg-red-100 text-red-700'
-                    : 'bg-blue-100 text-blue-700'
+                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                      : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                    : 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
                     }`}>
                     {idx + 1}
                   </div>
-                  <h3 className="text-lg font-medium text-slate-900 leading-relaxed mt-0.5">
+                  <h3 className="text-lg font-semibold text-white leading-relaxed mt-1">
                     {q.question}
                   </h3>
                 </div>
 
-                <div className="space-y-3 pl-12">
+                <div className="space-y-4 pl-0 md:pl-14">
                   {q.options.map((opt) => {
                     const isSelected = selectedAns === opt.key;
 
-                    let optionClass = 'border-slate-200 hover:border-blue-300 hover:bg-slate-50 text-slate-700';
+                    let optionClass = 'border-white/10 hover:border-indigo-500/50 hover:bg-white/5 text-slate-300 bg-[#131A2B]';
+                    let keyClass = 'bg-white/5 border-white/10 text-slate-400';
+
                     if (isSelected) {
-                      optionClass = 'border-blue-500 bg-blue-50 text-blue-800 ring-1 ring-blue-500';
+                      optionClass = 'border-indigo-500 bg-indigo-500/10 text-white shadow-[0_0_15px_rgba(99,102,241,0.15)]';
+                      keyClass = 'bg-indigo-500 text-white border-indigo-500';
                     }
 
                     // Nếu đã nộp bài, highlight đáp án đúng và sai
                     if (isSubmitted) {
                       if (opt.key === q.correct_answer) {
-                        optionClass = 'border-green-500 bg-green-50 text-green-800 ring-1 ring-green-500';
+                        optionClass = 'border-emerald-500 bg-emerald-500/10 text-white shadow-[0_0_15px_rgba(16,185,129,0.15)]';
+                        keyClass = 'bg-emerald-500 text-white border-emerald-500';
                       } else if (isSelected && opt.key !== q.correct_answer) {
-                        optionClass = 'border-red-500 bg-red-50 text-red-800 ring-1 ring-red-500';
+                        optionClass = 'border-rose-500 bg-rose-500/10 text-white shadow-[0_0_15px_rgba(244,63,94,0.15)]';
+                        keyClass = 'bg-rose-500 text-white border-rose-500';
                       } else {
-                        optionClass = 'border-slate-200 opacity-50 text-slate-500';
+                        optionClass = 'border-white/5 opacity-50 text-slate-500 bg-[#131A2B]';
+                        keyClass = 'bg-white/5 border-white/5 text-slate-500';
                       }
                     }
 
@@ -235,18 +247,18 @@ export default function TakeQuiz() {
                         key={opt.key}
                         disabled={isSubmitted}
                         onClick={() => handleSelectOption(idx, opt.key)}
-                        className={`w-full text-left p-4 rounded-xl border-2 transition-all flex items-center gap-3 ${optionClass}`}
+                        className={`w-full text-left p-4 md:p-5 rounded-2xl border transition-all duration-200 flex items-center gap-4 ${optionClass}`}
                       >
-                        <span className="inline-flex items-center justify-center w-6 h-6 rounded bg-white border border-current text-xs font-bold">
+                        <span className={`inline-flex items-center justify-center w-8 h-8 rounded-lg border text-sm font-bold transition-colors ${keyClass}`}>
                           {opt.key}
                         </span>
-                        <span className="flex-1">{opt.text}</span>
+                        <span className="flex-1 font-medium">{opt.text}</span>
 
                         {isSubmitted && opt.key === q.correct_answer && (
-                          <CheckCircle className="w-5 h-5 text-green-600" />
+                          <CheckCircle className="w-6 h-6 text-emerald-400 shrink-0" />
                         )}
                         {isSubmitted && isSelected && opt.key !== q.correct_answer && (
-                          <XCircle className="w-5 h-5 text-red-500" />
+                          <XCircle className="w-6 h-6 text-rose-500 shrink-0" />
                         )}
                       </button>
                     );
@@ -255,9 +267,14 @@ export default function TakeQuiz() {
 
                 {/* Hiển thị giải thích sau khi nộp */}
                 {isSubmitted && (
-                  <div className={`mt-6 pl-12 pt-4 border-t ${isCorrect ? 'border-green-100' : 'border-red-100'}`}>
-                    <p className="text-sm font-medium mb-1 text-slate-900">Giải thích:</p>
-                    <p className="text-sm text-slate-600">{q.explanation || 'Không có giải thích chi tiết cho câu hỏi này.'}</p>
+                  <div className={`mt-8 pl-0 md:pl-14 pt-6 border-t ${isCorrect ? 'border-emerald-500/20' : 'border-rose-500/20'}`}>
+                    <p className="text-sm font-bold mb-2 text-white flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                      Giải thích:
+                    </p>
+                    <p className="text-sm text-slate-300 leading-relaxed bg-[#131A2B] p-4 rounded-xl border border-white/5 shadow-inner">
+                      {q.explanation || 'Không có giải thích chi tiết cho câu hỏi này.'}
+                    </p>
                   </div>
                 )}
               </div>
@@ -267,18 +284,23 @@ export default function TakeQuiz() {
 
         {/* Submit button */}
         {!submitResult && questions.length > 0 && (
-          <div className="flex justify-end pt-4">
+          <div className="flex justify-end pt-6 pb-10">
             <button
               onClick={handleSubmit}
               disabled={submitting}
-              className="inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-blue-700 hover:shadow-lg transition-all disabled:opacity-70 disabled:hover:shadow-none"
+              className="inline-flex items-center justify-center gap-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-10 py-4 rounded-2xl font-bold text-lg hover:from-indigo-500 hover:to-purple-500 transition-all duration-300 shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {submitting ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <>
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                  Đang xử lý...
+                </>
               ) : (
-                <Save className="w-5 h-5" />
+                <>
+                  <Save className="w-6 h-6" />
+                  Nộp bài trắc nghiệm
+                </>
               )}
-              Nộp bài
             </button>
           </div>
         )}

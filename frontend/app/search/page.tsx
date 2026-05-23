@@ -11,7 +11,8 @@ import {
   FileCode, 
   File, 
   Loader2,
-  HardDrive
+  HardDrive,
+  XCircle
 } from 'lucide-react';
 import { getToken } from '@/lib/auth';
 
@@ -43,10 +44,10 @@ const formatBytes = (bytes: number, decimals = 2) => {
 
 const getFileIcon = (type: string) => {
   switch (type) {
-    case 'lecture': return <BookOpen className="w-8 h-8 text-blue-500" />;
-    case 'exercise': return <FileCode className="w-8 h-8 text-green-500" />;
-    case 'exam': return <FileText className="w-8 h-8 text-red-500" />;
-    default: return <File className="w-8 h-8 text-gray-500" />;
+    case 'lecture': return <BookOpen className="w-7 h-7 text-indigo-400" />;
+    case 'exercise': return <FileCode className="w-7 h-7 text-emerald-400" />;
+    case 'exam': return <FileText className="w-7 h-7 text-rose-400" />;
+    default: return <File className="w-7 h-7 text-slate-400" />;
   }
 };
 
@@ -127,28 +128,28 @@ function SearchContent() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="max-w-7xl mx-auto px-4 py-12 relative z-10">
       {/* Top Bar: Back button & Search Input */}
-      <div className="flex flex-col md:flex-row items-center gap-4 mb-8">
-        <Link href="/" className="flex items-center text-gray-500 hover:text-blue-600 transition font-medium self-start md:self-auto">
-          <ArrowLeft className="w-5 h-5 mr-1" />
+      <div className="flex flex-col md:flex-row items-center gap-6 mb-10">
+        <Link href="/" className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-300 shadow-sm transition hover:bg-white/10 hover:text-white backdrop-blur-md self-start md:self-auto shrink-0">
+          <ArrowLeft className="w-4 h-4" />
           Trang chủ
         </Link>
         
         <form onSubmit={handleSearchSubmit} className="flex-1 w-full relative">
-          <div className="relative flex items-center w-full h-12 rounded-xl focus-within:shadow-md bg-white border border-gray-200 transition-all overflow-hidden">
-            <div className="grid place-items-center h-full w-12 text-gray-400">
-              <SearchIcon className="h-5 w-5" />
+          <div className="relative flex items-center w-full h-14 rounded-2xl focus-within:ring-2 focus-within:ring-indigo-500 bg-[#131A2B] border border-white/10 transition-all overflow-hidden shadow-inner">
+            <div className="grid place-items-center h-full w-14 text-slate-500">
+              <SearchIcon className="h-6 w-6" />
             </div>
             <input
-              className="peer h-full w-full outline-none text-base text-gray-700 pr-4 bg-transparent"
+              className="peer h-full w-full outline-none text-base text-white pr-4 bg-transparent placeholder-slate-600"
               type="text"
               placeholder="Tìm kiếm tài liệu, giáo trình, đề thi..."
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
               autoFocus
             />
-            <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-6 h-full font-medium transition-colors">
+            <button type="submit" className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white px-8 h-full font-bold transition-all shadow-[0_0_15px_rgba(99,102,241,0.3)] hover:shadow-[0_0_25px_rgba(99,102,241,0.5)]">
               Tìm
             </button>
           </div>
@@ -157,9 +158,9 @@ function SearchContent() {
 
       {/* Results Header */}
       {hasSearched && (
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-800">Kết quả tìm kiếm</h1>
-          <p className="text-gray-500 mt-1">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white tracking-tight">Kết quả tìm kiếm</h1>
+          <p className="text-slate-400 mt-2 text-lg">
             {loading ? 'Đang tìm kiếm...' : `Tìm thấy ${results.length + subjects.length} kết quả cho "${initialQuery}"`}
           </p>
         </div>
@@ -167,51 +168,57 @@ function SearchContent() {
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-50 text-red-600 p-4 rounded-xl border border-red-100 mb-6">
+        <div className="bg-rose-500/10 text-rose-400 p-5 rounded-2xl border border-rose-500/20 mb-8 flex items-center gap-3 font-medium">
+          <XCircle className="w-6 h-6 shrink-0" />
           {error}
         </div>
       )}
 
       {/* Loading State */}
       {loading ? (
-        <div className="flex justify-center items-center py-20">
-          <Loader2 className="w-10 h-10 animate-spin text-blue-600" />
+        <div className="flex justify-center items-center py-24">
+          <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
         </div>
       ) : hasSearched && results.length === 0 && subjects.length === 0 && !error ? (
         /* Empty State */
-        <div className="text-center py-20 bg-white rounded-2xl border border-gray-200">
-          <SearchIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Không tìm thấy kết quả nào</h3>
-          <p className="text-gray-500">Hãy thử sử dụng các từ khóa khác hoặc kiểm tra lại lỗi chính tả.</p>
+        <div className="text-center py-24 bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px] pointer-events-none"></div>
+          <SearchIcon className="w-20 h-20 text-slate-600 mx-auto mb-6 relative z-10" />
+          <h3 className="text-2xl font-bold text-white mb-3 relative z-10">Không tìm thấy kết quả nào</h3>
+          <p className="text-slate-400 relative z-10">Hãy thử sử dụng các từ khóa khác hoặc kiểm tra lại lỗi chính tả.</p>
         </div>
       ) : hasSearched && (results.length > 0 || subjects.length > 0) ? (
         /* Results - Split into two sections */
-        <div className="space-y-8">
+        <div className="space-y-12">
           {/* Documents Section */}
           {results.length > 0 && (
             <div>
-              <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <FileText className="w-6 h-6 text-blue-600" />
+              <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
+                <div className="p-2 bg-indigo-500/20 rounded-lg border border-indigo-500/30">
+                  <FileText className="w-5 h-5 text-indigo-400" />
+                </div>
                 Tài liệu ({results.length})
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {results.map((doc) => (
                   <div
                     key={doc.id}
                     onClick={() => router.push(`/search/${doc.id}`)}
-                    className="bg-white p-5 rounded-2xl border border-gray-200 hover:shadow-lg hover:border-blue-300 transition-all group flex flex-col cursor-pointer"
+                    className="bg-[#131A2B] p-6 rounded-3xl border border-white/10 hover:shadow-[0_10px_30px_rgba(99,102,241,0.15)] hover:border-indigo-500/30 transition-all duration-300 group flex flex-col cursor-pointer relative overflow-hidden shadow-inner"
                   >
-                    <div className="flex items-start gap-4 mb-3">
-                      <div className="p-2 bg-blue-50 rounded-xl group-hover:scale-110 transition-transform">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-[40px] -mr-10 -mt-10 transition-all duration-300 group-hover:bg-indigo-500/20"></div>
+
+                    <div className="flex items-start gap-4 mb-5 relative z-10">
+                      <div className="p-3 bg-white/5 rounded-2xl border border-white/10 shadow-sm group-hover:scale-110 transition-transform duration-300">
                         {getFileIcon(doc.doc_type)}
                       </div>
-                      <h3 className="font-semibold text-gray-900 line-clamp-2 leading-tight flex-1 group-hover:text-blue-600 transition-colors">
+                      <h3 className="font-bold text-white line-clamp-2 leading-tight flex-1 group-hover:text-indigo-300 transition-colors mt-1">
                         {doc.file_name}
                       </h3>
                     </div>
-                    <div className="mt-auto flex items-center justify-between text-sm text-gray-500 pt-3 border-t border-gray-100">
-                      <span className="bg-gray-100 px-2.5 py-1 rounded-md font-medium text-gray-600">{getTypeName(doc.doc_type)}</span>
-                      <span className="flex items-center gap-1"><HardDrive className="w-3.5 h-3.5"/> {formatBytes(doc.file_size)}</span>
+                    <div className="mt-auto flex items-center justify-between text-sm text-slate-400 pt-5 border-t border-white/10 relative z-10">
+                      <span className="bg-white/5 px-3 py-1.5 rounded-lg font-medium text-slate-300 border border-white/5">{getTypeName(doc.doc_type)}</span>
+                      <span className="flex items-center gap-1.5 font-medium"><HardDrive className="w-4 h-4 text-indigo-400"/> {formatBytes(doc.file_size)}</span>
                     </div>
                   </div>
                 ))}
@@ -222,30 +229,31 @@ function SearchContent() {
           {/* Subjects Section */}
           {subjects.length > 0 && (
             <div>
-              <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <BookOpen className="w-6 h-6 text-green-600" />
+              <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
+                <div className="p-2 bg-emerald-500/20 rounded-lg border border-emerald-500/30">
+                  <BookOpen className="w-5 h-5 text-emerald-400" />
+                </div>
                 Môn học ({subjects.length})
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {subjects.map((subject) => (
                   <div
                     key={subject.id}
                     onClick={() => router.push(`/search/subject/${subject.id}`)}
-                    className="bg-white p-6 rounded-2xl border border-gray-200 hover:shadow-lg hover:border-green-300 transition-all group cursor-pointer"
+                    className="bg-[#131A2B] p-6 rounded-3xl border border-white/10 hover:shadow-[0_10px_30px_rgba(16,185,129,0.15)] hover:border-emerald-500/30 transition-all group cursor-pointer relative overflow-hidden shadow-inner"
                   >
-                    <div className="flex items-start gap-4">
-                      <div className="p-3 bg-green-50 rounded-xl group-hover:scale-110 transition-transform flex-shrink-0">
-                        <BookOpen className="w-6 h-6 text-green-600" />
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-[40px] -mr-10 -mt-10 transition-all duration-300 group-hover:bg-emerald-500/20"></div>
+
+                    <div className="flex items-start gap-4 relative z-10">
+                      <div className="p-3 bg-white/5 rounded-2xl border border-white/10 group-hover:scale-110 transition-transform flex-shrink-0 shadow-sm">
+                        <BookOpen className="w-6 h-6 text-emerald-400" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-500 mb-1">{subject.subject_code}</p>
-                        <h3 className="font-semibold text-gray-900 line-clamp-2 group-hover:text-green-600 transition-colors">
+                        <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-1.5">{subject.subject_code}</p>
+                        <h3 className="text-lg font-bold text-white line-clamp-2 group-hover:text-emerald-300 transition-colors">
                           {subject.subject_name}
                         </h3>
                       </div>
-                    </div>
-                    <div className="mt-4 pt-4 border-t border-gray-100">
-                      <p className="text-xs text-gray-500">ID: {subject.id}</p>
                     </div>
                   </div>
                 ))}
@@ -262,10 +270,14 @@ function SearchContent() {
 // Bọc SearchContent trong Suspense là bắt buộc trong Next.js App Router khi dùng useSearchParams
 export default function SearchPage() {
   return (
-    <div className="min-h-screen bg-gray-50 font-sans">
+    <div className="min-h-screen bg-[#0B0F19] font-sans relative overflow-hidden">
+      {/* Background Orbs */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-600/10 blur-[120px] pointer-events-none" />
+      <div className="absolute top-[20%] right-[-10%] w-[30%] h-[30%] rounded-full bg-fuchsia-600/10 blur-[120px] pointer-events-none" />
+
       <Suspense fallback={
         <div className="min-h-screen flex justify-center items-center">
-          <Loader2 className="w-10 h-10 animate-spin text-blue-600" />
+          <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
         </div>
       }>
         <SearchContent />

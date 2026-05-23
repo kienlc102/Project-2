@@ -222,17 +222,18 @@ export default function AccountPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-green-50">
-        <div className="text-gray-600 text-lg">Đang tải...</div>
+      <div className="min-h-screen flex items-center justify-center bg-[#0B0F19]">
+        <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-green-50 px-4">
-        <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
-          <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+      <div className="min-h-screen flex items-center justify-center bg-[#0B0F19] px-4">
+        <div className="w-full max-w-md bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-8">
+          <div className="p-4 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl flex items-center gap-2">
+            <X className="w-5 h-5 shrink-0" />
             {error}
           </div>
         </div>
@@ -242,8 +243,8 @@ export default function AccountPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-green-50">
-        <div className="text-gray-600 text-lg">Không tìm thấy thông tin user</div>
+      <div className="min-h-screen flex items-center justify-center bg-[#0B0F19]">
+        <div className="text-slate-400 text-lg">Không tìm thấy thông tin user</div>
       </div>
     );
   }
@@ -259,33 +260,37 @@ export default function AccountPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 px-4 py-8">
-      <div className="max-w-3xl mx-auto space-y-6">
+    <div className="min-h-screen bg-[#0B0F19] relative overflow-hidden px-4 py-12">
+      {/* Background Orbs */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-600/20 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-fuchsia-600/20 blur-[120px] pointer-events-none" />
+
+      <div className="max-w-3xl mx-auto space-y-6 relative z-10">
         {/* Header Card */}
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <div className="flex items-center justify-between mb-0">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center">
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-8 transition-all hover:bg-white/[0.07]">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-0">
+            <div className="flex items-center gap-5 w-full sm:w-auto">
+              <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/25">
                 <User className="w-8 h-8 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-800">Hồ sơ của tôi</h1>
-                <p className="text-gray-600">Quản lý thông tin tài khoản</p>
+                <h1 className="text-2xl font-bold text-white">Hồ sơ của tôi</h1>
+                <p className="text-slate-400">Quản lý thông tin tài khoản</p>
               </div>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
               <button
                 onClick={() => router.push('/')}
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition duration-200"
+                className="flex items-center gap-2 px-4 py-2.5 bg-white/10 hover:bg-white/20 border border-white/10 text-white rounded-xl transition duration-300 font-medium"
               >
-                <ArrowLeft className="w-5 h-5" />
+                <ArrowLeft className="w-4 h-4" />
                 <span>Trang chủ</span>
               </button>
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition duration-200"
+                className="flex items-center gap-2 px-4 py-2.5 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 rounded-xl transition duration-300 font-medium"
               >
-                <LogOut className="w-5 h-5" />
+                <LogOut className="w-4 h-4" />
                 <span>Đăng xuất</span>
               </button>
             </div>
@@ -293,40 +298,40 @@ export default function AccountPage() {
         </div>
 
         {/* Update Full Name */}
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Cập nhật Họ và tên</h2>
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-8 transition-all hover:bg-white/[0.07]">
+          <h2 className="text-xl font-bold text-white mb-5">Cập nhật Họ và tên</h2>
           
           {fullNameMessage && (
-            <div className={`mb-4 p-3 rounded flex items-center gap-2 ${
+            <div className={`mb-5 p-4 rounded-xl flex items-center gap-3 text-sm ${
               fullNameMessage.type === 'success'
-                ? 'bg-green-100 text-green-800 border border-green-400'
-                : 'bg-red-100 text-red-800 border border-red-400'
+                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
             }`}>
               {fullNameMessage.type === 'success' ? (
-                <Check className="w-5 h-5" />
+                <Check className="w-5 h-5 shrink-0" />
               ) : (
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5 shrink-0" />
               )}
               {fullNameMessage.text}
             </div>
           )}
 
           {editingFullName ? (
-            <div className="space-y-3">
+            <div className="space-y-4">
               <input
                 type="text"
                 value={newFullName}
                 onChange={(e) => setNewFullName(e.target.value)}
                 placeholder="Nhập họ và tên"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 bg-[#131A2B] border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all placeholder-slate-500 shadow-inner"
               />
-              <div className="flex gap-2">
+              <div className="flex gap-3">
                 <button
                   onClick={handleUpdateFullName}
                   disabled={updatingFullName}
-                  className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition duration-200 disabled:opacity-50"
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold rounded-xl transition duration-300 disabled:opacity-50 shadow-[0_0_15px_rgba(99,102,241,0.3)] hover:shadow-[0_0_25px_rgba(99,102,241,0.5)]"
                 >
-                  {updatingFullName ? 'Đang cập nhật...' : 'Lưu'}
+                  {updatingFullName ? 'Đang cập nhật...' : 'Lưu thay đổi'}
                 </button>
                 <button
                   onClick={() => {
@@ -334,7 +339,7 @@ export default function AccountPage() {
                     setNewFullName(user?.fullName || '');
                     setFullNameMessage(null);
                   }}
-                  className="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg transition duration-200"
+                  className="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 font-semibold rounded-xl transition duration-200"
                 >
                   Huỷ
                 </button>
@@ -342,7 +347,7 @@ export default function AccountPage() {
             </div>
           ) : (
             <div>
-              <div className="px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 mb-3">
+              <div className="px-4 py-3.5 bg-[#131A2B] border border-white/10 rounded-xl text-white mb-4 shadow-inner">
                 {user?.fullName}
               </div>
               <button
@@ -351,7 +356,7 @@ export default function AccountPage() {
                   setNewFullName(user?.fullName || '');
                   setFullNameMessage(null);
                 }}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition duration-200"
+                className="px-6 py-2.5 bg-white/10 hover:bg-white/20 border border-white/10 text-white font-medium rounded-xl transition duration-300"
               >
                 Chỉnh sửa
               </button>
@@ -360,40 +365,40 @@ export default function AccountPage() {
         </div>
 
         {/* Update Email */}
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Cập nhật Email</h2>
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-8 transition-all hover:bg-white/[0.07]">
+          <h2 className="text-xl font-bold text-white mb-5">Cập nhật Email</h2>
           
           {emailMessage && (
-            <div className={`mb-4 p-3 rounded flex items-center gap-2 ${
+            <div className={`mb-5 p-4 rounded-xl flex items-center gap-3 text-sm ${
               emailMessage.type === 'success'
-                ? 'bg-green-100 text-green-800 border border-green-400'
-                : 'bg-red-100 text-red-800 border border-red-400'
+                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
             }`}>
               {emailMessage.type === 'success' ? (
-                <Check className="w-5 h-5" />
+                <Check className="w-5 h-5 shrink-0" />
               ) : (
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5 shrink-0" />
               )}
               {emailMessage.text}
             </div>
           )}
 
           {editingEmail ? (
-            <div className="space-y-3">
+            <div className="space-y-4">
               <input
                 type="email"
                 value={newEmail}
                 onChange={(e) => setNewEmail(e.target.value)}
                 placeholder="Nhập email mới"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 bg-[#131A2B] border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all placeholder-slate-500 shadow-inner"
               />
-              <div className="flex gap-2">
+              <div className="flex gap-3">
                 <button
                   onClick={handleUpdateEmail}
                   disabled={updatingEmail}
-                  className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition duration-200 disabled:opacity-50"
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold rounded-xl transition duration-300 disabled:opacity-50 shadow-[0_0_15px_rgba(99,102,241,0.3)] hover:shadow-[0_0_25px_rgba(99,102,241,0.5)]"
                 >
-                  {updatingEmail ? 'Đang cập nhật...' : 'Lưu'}
+                  {updatingEmail ? 'Đang cập nhật...' : 'Lưu thay đổi'}
                 </button>
                 <button
                   onClick={() => {
@@ -401,7 +406,7 @@ export default function AccountPage() {
                     setNewEmail(user?.email || '');
                     setEmailMessage(null);
                   }}
-                  className="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg transition duration-200"
+                  className="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 font-semibold rounded-xl transition duration-200"
                 >
                   Huỷ
                 </button>
@@ -409,7 +414,7 @@ export default function AccountPage() {
             </div>
           ) : (
             <div>
-              <div className="px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 mb-3">
+              <div className="px-4 py-3.5 bg-[#131A2B] border border-white/10 rounded-xl text-white mb-4 shadow-inner">
                 {user?.email}
               </div>
               <button
@@ -418,7 +423,7 @@ export default function AccountPage() {
                   setNewEmail(user?.email || '');
                   setEmailMessage(null);
                 }}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition duration-200"
+                className="px-6 py-2.5 bg-white/10 hover:bg-white/20 border border-white/10 text-white font-medium rounded-xl transition duration-300"
               >
                 Chỉnh sửa
               </button>
@@ -427,54 +432,54 @@ export default function AccountPage() {
         </div>
 
         {/* Update Password */}
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Cập nhật Mật khẩu</h2>
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-8 transition-all hover:bg-white/[0.07]">
+          <h2 className="text-xl font-bold text-white mb-5">Cập nhật Mật khẩu</h2>
           
           {passwordMessage && (
-            <div className={`mb-4 p-3 rounded flex items-center gap-2 ${
+            <div className={`mb-5 p-4 rounded-xl flex items-center gap-3 text-sm ${
               passwordMessage.type === 'success'
-                ? 'bg-green-100 text-green-800 border border-green-400'
-                : 'bg-red-100 text-red-800 border border-red-400'
+                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
             }`}>
               {passwordMessage.type === 'success' ? (
-                <Check className="w-5 h-5" />
+                <Check className="w-5 h-5 shrink-0" />
               ) : (
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5 shrink-0" />
               )}
               {passwordMessage.text}
             </div>
           )}
 
           {editingPassword ? (
-            <div className="space-y-3">
+            <div className="space-y-4">
               <input
                 type="password"
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 placeholder="Mật khẩu hiện tại"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 bg-[#131A2B] border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all placeholder-slate-500 shadow-inner"
               />
               <input
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="Mật khẩu mới"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 bg-[#131A2B] border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all placeholder-slate-500 shadow-inner"
               />
               <input
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Xác nhận mật khẩu mới"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 bg-[#131A2B] border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all placeholder-slate-500 shadow-inner"
               />
-              <div className="flex gap-2">
+              <div className="flex gap-3 pt-2">
                 <button
                   onClick={handleUpdatePassword}
                   disabled={updatingPassword}
-                  className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition duration-200 disabled:opacity-50"
+                  className="flex-1 px-4 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold rounded-xl transition duration-300 disabled:opacity-50 shadow-[0_0_15px_rgba(99,102,241,0.3)] hover:shadow-[0_0_25px_rgba(99,102,241,0.5)]"
                 >
-                  {updatingPassword ? 'Đang cập nhật...' : 'Lưu'}
+                  {updatingPassword ? 'Đang cập nhật...' : 'Lưu thay đổi'}
                 </button>
                 <button
                   onClick={() => {
@@ -484,7 +489,7 @@ export default function AccountPage() {
                     setConfirmPassword('');
                     setPasswordMessage(null);
                   }}
-                  className="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg transition duration-200"
+                  className="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 font-semibold rounded-xl transition duration-200"
                 >
                   Huỷ
                 </button>
@@ -496,7 +501,7 @@ export default function AccountPage() {
                 setEditingPassword(true);
                 setPasswordMessage(null);
               }}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition duration-200"
+              className="px-6 py-2.5 bg-white/10 hover:bg-white/20 border border-white/10 text-white font-medium rounded-xl transition duration-300"
             >
               Thay đổi mật khẩu
             </button>
@@ -504,39 +509,43 @@ export default function AccountPage() {
         </div>
 
         {/* Account Info */}
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Thông tin tài khoản</h2>
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-8 transition-all hover:bg-white/[0.07]">
+          <h2 className="text-xl font-bold text-white mb-6">Thông tin bổ sung</h2>
           
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-slate-400 mb-2">
                 Trạng thái xác minh
               </label>
-              <div className="px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg">
-                <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
+              <div className="px-4 py-3.5 bg-[#131A2B] border border-white/10 rounded-xl">
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold ${
                   user?.isVerified 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-yellow-100 text-yellow-800'
+                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
+                    : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
                 }`}>
-                  {user?.isVerified ? '✓ Đã xác minh' : 'Chưa xác minh'}
+                  {user?.isVerified ? (
+                    <><Check className="w-4 h-4"/> Đã xác minh</>
+                  ) : (
+                    'Chưa xác minh'
+                  )}
                 </span>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-slate-400 mb-2">
                 Ngày tạo tài khoản
               </label>
-              <div className="px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 text-sm">
+              <div className="px-4 py-3.5 bg-[#131A2B] border border-white/10 rounded-xl text-white text-sm">
                 {user && formatDate(user.createdAt)}
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-slate-400 mb-2">
                 ID tài khoản
               </label>
-              <div className="px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 font-mono text-sm">
+              <div className="px-4 py-3.5 bg-[#131A2B] border border-white/10 rounded-xl text-indigo-300 font-mono text-sm">
                 #{user?.id}
               </div>
             </div>
@@ -544,42 +553,42 @@ export default function AccountPage() {
         </div>
 
         {/* Danger Zone */}
-        <div className="bg-white rounded-lg shadow-lg p-8 border-l-4 border-red-600">
-          <h2 className="text-lg font-bold text-red-600 mb-4 flex items-center gap-2">
-            <Trash2 className="w-5 h-5" />
+        <div className="bg-white/5 backdrop-blur-xl border border-rose-500/20 rounded-3xl shadow-2xl p-8 transition-all hover:bg-rose-500/5">
+          <h2 className="text-xl font-bold text-rose-500 mb-5 flex items-center gap-3">
+            <Trash2 className="w-6 h-6" />
             Vùng nguy hiểm
           </h2>
           
           {deleteMessage && (
-            <div className={`mb-4 p-3 rounded flex items-center gap-2 ${
+            <div className={`mb-5 p-4 rounded-xl flex items-center gap-3 text-sm ${
               deleteMessage.type === 'success'
-                ? 'bg-green-100 text-green-800 border border-green-400'
-                : 'bg-red-100 text-red-800 border border-red-400'
+                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
             }`}>
               {deleteMessage.type === 'success' ? (
-                <Check className="w-5 h-5" />
+                <Check className="w-5 h-5 shrink-0" />
               ) : (
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5 shrink-0" />
               )}
               {deleteMessage.text}
             </div>
           )}
 
-          <p className="text-gray-600 text-sm mb-4">
-            Các hành động sau không thể được hoàn tác. Vui lòng thực hiện cẩn thận.
+          <p className="text-slate-400 text-sm mb-6">
+            Hành động này sẽ xóa vĩnh viễn tài khoản và tất cả dữ liệu của bạn. Không thể hoàn tác.
           </p>
 
           {!deleteConfirming ? (
             <button
               onClick={() => setDeleteConfirming(true)}
-              className="w-full px-4 py-2 bg-red-100 hover:bg-red-200 text-red-600 border border-red-300 rounded-lg transition duration-200 font-medium"
+              className="px-6 py-3 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-xl transition duration-300 font-medium"
             >
-              Xóa tài khoản
+              Xóa tài khoản vĩnh viễn
             </button>
           ) : (
-            <div className="space-y-3 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-800 font-semibold">
-                ⚠️ Bạn chắc chắn muốn xóa tài khoản này không? Hành động này không thể hoàn tác!
+            <div className="space-y-4 p-5 bg-rose-500/5 border border-rose-500/20 rounded-2xl backdrop-blur-sm">
+              <p className="text-sm text-rose-400 font-medium">
+                ⚠️ Cảnh báo: Vui lòng nhập mật khẩu để xác nhận xóa tài khoản!
               </p>
               
               <input
@@ -587,14 +596,14 @@ export default function AccountPage() {
                 value={deleteConfirmPassword}
                 onChange={(e) => setDeleteConfirmPassword(e.target.value)}
                 placeholder="Nhập mật khẩu để xác nhận"
-                className="w-full px-4 py-2 border border-red-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                className="w-full px-4 py-3 bg-[#131A2B] border border-rose-500/30 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all placeholder-rose-900/50"
               />
               
-              <div className="flex gap-2">
+              <div className="flex gap-3 pt-2">
                 <button
                   onClick={handleDeleteAccount}
                   disabled={deleteLoading || !deleteConfirmPassword}
-                  className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition duration-200 disabled:opacity-50 font-medium"
+                  className="flex-1 px-4 py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-xl transition duration-300 disabled:opacity-50 font-bold shadow-[0_0_15px_rgba(225,29,72,0.3)]"
                 >
                   {deleteLoading ? 'Đang xóa...' : 'Xác nhận xóa'}
                 </button>
@@ -604,7 +613,7 @@ export default function AccountPage() {
                     setDeleteConfirmPassword('');
                     setDeleteMessage(null);
                   }}
-                  className="flex-1 px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg transition duration-200"
+                  className="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 font-semibold rounded-xl transition duration-200"
                 >
                   Huỷ
                 </button>

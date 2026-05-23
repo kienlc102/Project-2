@@ -122,16 +122,21 @@ def submit_quiz(request: QuizSubmitRequest):
     )
 
 @router.get("/get-quiz-by-subject/{subject_id}")
-def get_quiz(subject_id: int, db: Session = Depends(get_db)):
+def get_quizzes_by_subject(subject_id: int, db: Session = Depends(get_db)):
     """
-    Get a quiz by subject ID.
+    Get quizzes by subject ID.
     """
-    quiz = db.query(Quiz).filter(Quiz.subject_id == subject_id).first()
-    if not quiz:
-        raise HTTPException(status_code=404, detail="Quiz not found")
-    questions = db.query(Question).filter(Question.quiz_id == quiz.id).all()
-    response = QuizGenerateResponse(questions=questions)
-    return response 
+    quizzes = db.query(Quiz).filter(Quiz.subject_id == subject_id).all()
+    result = []
+    for quiz in quizzes:
+        question_count = db.query(Question).filter(Question.quiz_id == quiz.id).count()
+        result.append({
+            "quiz_id": quiz.id,
+            "title": quiz.title,
+            "question_count": question_count,
+            "created_at": quiz.created_at
+        })
+    return result
 
 @router.get("/get-quiz-by-id/{id}", response_model=QuizGenerateResponse)
 def get_quiz_by_id(id: int, db: Session = Depends(get_db)):

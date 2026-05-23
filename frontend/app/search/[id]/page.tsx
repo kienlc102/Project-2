@@ -12,18 +12,22 @@ import {
   FileCode,
   File,
   Loader2,
-  Eye,
   Calendar,
   HardDrive,
-  Book
+  Book,
+  AlertCircle,
+  ThumbsUp,
+  Share2,
+  Bookmark,
+  ChevronRight
 } from 'lucide-react';
 
 // Dùng next/dynamic để TẮT SSR cho component chứa react-pdf
 const DynamicPDFViewer = dynamic(() => import('@/components/PDFViewer'), {
   ssr: false,
   loading: () => (
-    <div className="flex items-center justify-center h-96 bg-gray-50 border border-gray-300 rounded-lg">
-      <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+    <div className="flex items-center justify-center h-[600px] bg-[#131A2B] w-full">
+      <Loader2 className="h-10 w-10 animate-spin text-indigo-500" />
     </div>
   ),
 });
@@ -56,15 +60,6 @@ const getTypeLabel = (type: string) => {
   }
 };
 
-const getIcon = (type: string) => {
-  switch (type) {
-    case 'lecture': return <BookOpen className="w-6 h-6 text-blue-600" />;
-    case 'exercise': return <FileCode className="w-6 h-6 text-green-600" />;
-    case 'exam': return <FileText className="w-6 h-6 text-red-600" />;
-    default: return <File className="w-6 h-6 text-gray-600" />;
-  }
-};
-
 const formatBytes = (bytes: number, decimals = 2) => {
   if (!+bytes) return '0 Bytes';
   const k = 1024;
@@ -78,9 +73,7 @@ const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString('vi-VN', {
     year: 'numeric',
     month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
+    day: 'numeric'
   });
 };
 
@@ -102,7 +95,7 @@ function DocumentDetailContent() {
       try {
         const API_BASE = 'http://localhost:8000/api/v1';
         const res = await fetch(`${API_BASE}/document/${id}`);
-        if (!res.ok) throw new Error(`Không tải được thông tin (${res.status})`);
+        if (!res.ok) throw new Error(`Không tải được thông tin tài liệu (${res.status})`);
         const data = await res.json();
         setDoc(data);
       } catch (err: any) {
@@ -129,10 +122,10 @@ function DocumentDetailContent() {
   // UI Đang tải
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-600 font-medium">Đang tải thông tin tài liệu...</p>
+          <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+          <p className="text-slate-400 font-medium">Đang tải tài liệu...</p>
         </div>
       </div>
     );
@@ -141,17 +134,18 @@ function DocumentDetailContent() {
   // UI Lỗi
   if (error || !doc) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center max-w-md p-6 bg-white rounded-xl shadow-sm border border-gray-200">
-          <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Không tìm thấy tài liệu</h2>
-          <p className="text-gray-600 mb-6">{error || 'Tài liệu không tồn tại hoặc đã bị xóa.'}</p>
+      <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center px-4 relative overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-rose-600/10 blur-[120px] pointer-events-none" />
+        <div className="text-center max-w-md p-8 bg-white/5 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 relative z-10">
+          <AlertCircle className="h-16 w-16 text-rose-500 mx-auto mb-6" />
+          <h2 className="text-2xl font-bold text-white mb-3">Không tìm thấy tài liệu</h2>
+          <p className="text-slate-400 mb-8">{error || 'Tài liệu không tồn tại hoặc đã bị xóa.'}</p>
           <Link
             href="/document"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/10 text-white rounded-xl transition duration-300 font-medium"
           >
             <ArrowLeft className="h-4 w-4" />
-            Quay lại danh sách
+            Về trang chủ
           </Link>
         </div>
       </div>
@@ -161,177 +155,180 @@ function DocumentDetailContent() {
   const isPDF = doc.mime_type === 'application/pdf';
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-12">
-      {/* --- HEADER --- */}
-      <div className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <Link
-            href="/document"
-            className="inline-flex items-center gap-2 mb-4 px-3 py-2 -ml-3 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Quay lại
-          </Link>
+    <div className="min-h-screen bg-[#0B0F19] py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        
+        {/* Header / Breadcrumb (StuDocu Style) */}
+        <div className="mb-8">
+          <nav className="flex flex-wrap items-center text-sm text-slate-400 gap-2 mb-4 font-medium">
+            <Link href="/" className="hover:text-indigo-400 transition-colors">EduLearn</Link>
+            <ChevronRight className="w-4 h-4 text-slate-600" />
+            <Link href="/document" className="hover:text-indigo-400 transition-colors">Tài liệu</Link>
+            {doc.subject && (
+              <>
+                <ChevronRight className="w-4 h-4 text-slate-600" />
+                <Link href={`/subject/${doc.subject.id}`} className="hover:text-indigo-400 transition-colors">
+                  {doc.subject.subject_name}
+                </Link>
+              </>
+            )}
+            <ChevronRight className="w-4 h-4 text-slate-600" />
+            <span className="text-slate-300 truncate max-w-[200px] sm:max-w-xs md:max-w-md">{doc.file_name}</span>
+          </nav>
+          
+          <h1 className="text-3xl md:text-4xl font-extrabold text-white leading-tight mb-4 tracking-tight">
+            {doc.file_name}
+          </h1>
 
-          <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 p-3 bg-gray-50 rounded-lg border border-gray-100">
-                {getIcon(doc.doc_type)}
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-2 leading-tight">
-                  {doc.file_name}
-                </h1>
-                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                  <span className="flex items-center gap-1.5">
-                    <Calendar className="h-4 w-4 text-gray-400" />
-                    {formatDate(doc.created_at)}
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <HardDrive className="h-4 w-4 text-gray-400" />
-                    {formatBytes(doc.file_size)}
-                  </span>
-                  <span className="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-md text-xs font-semibold border border-blue-100">
-                    {getTypeLabel(doc.doc_type)}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex-shrink-0">
-              <button
-                onClick={handleDownload}
-                className="inline-flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm w-full md:w-auto justify-center"
-              >
-                <Download className="h-4 w-4" />
-                Tải tài liệu
-              </button>
-            </div>
+          <div className="flex flex-wrap items-center gap-4 text-sm text-slate-400">
+            {doc.subject && (
+              <Link href={`/subject/${doc.subject.id}`} className="flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
+                <Book className="w-4 h-4 text-emerald-500" />
+                <span className="font-semibold text-slate-300">{doc.subject.subject_name}</span>
+              </Link>
+            )}
+            <span className="flex items-center gap-1.5">
+              <Calendar className="w-4 h-4 text-indigo-400" />
+              Đăng ngày {formatDate(doc.created_at)}
+            </span>
           </div>
         </div>
-      </div>
 
-      {/* --- NỘI DUNG CHÍNH --- */}
-      <div className="max-w-7xl mx-auto px-4 mt-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Main Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
-          {/* CỘT TRÁI (Preview Tài Liệu) */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="p-4 border-b border-gray-100 flex items-center gap-2 bg-gray-50/50">
-                <Eye className="h-5 w-5 text-gray-500" />
-                <h2 className="text-base font-semibold text-gray-900">Xem trước nội dung</h2>
-              </div>
-
-              <div className="p-6">
-                {isPDF ? (
-                  <div className="space-y-6">
-                    {/* Render file PDF */}
-                    <div className="w-full">
-                      <DynamicPDFViewer docId={doc.id} onDownload={handleDownload} />
-                    </div>
-
-                    {/* Preview văn bản trích xuất từ PDF (nếu có) */}
-                    {doc.preview && doc.preview.trim() && (
-                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                        <div className="flex items-center gap-2 mb-3">
-                          <FileText className="h-4 w-4 text-gray-500" />
-                          <h3 className="text-sm font-semibold text-gray-700">Văn bản trích xuất (Dạng text)</h3>
-                        </div>
-                        <div className="bg-white border border-gray-200 rounded p-4 max-h-64 overflow-y-auto custom-scrollbar">
-                          <pre className="text-sm text-gray-600 font-sans whitespace-pre-wrap leading-relaxed">
-                            {doc.preview}
-                          </pre>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  // Giao diện cho các file không phải PDF (txt, docx chưa hỗ trợ render...)
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-                    <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-200">
-                      <div className="flex items-center gap-3">
-                        <FileText className="h-6 w-6 text-gray-400" />
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900">Nội dung văn bản thô</p>
-                          <p className="text-xs text-gray-500 mt-0.5">
-                            {doc.total_content_length > 0
-                              ? `Đã trích xuất ${doc.total_content_length.toLocaleString()} ký tự`
-                              : 'Không có nội dung văn bản'}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="bg-white border border-gray-200 rounded p-5 max-h-[500px] overflow-y-auto custom-scrollbar">
-                      <pre className="text-sm text-gray-700 font-sans whitespace-pre-wrap leading-relaxed">
-                        {doc.preview || <span className="text-gray-400 italic">Tài liệu này không có nội dung xem trước...</span>}
-                      </pre>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* CỘT PHẢI (Sidebar Thông Tin) */}
-          <div className="space-y-6">
-            
-            {/* Card 1: Thông số kỹ thuật của file */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="p-4 border-b border-gray-100 bg-gray-50/50">
-                <h3 className="text-base font-semibold text-gray-900">Chi tiết tệp</h3>
-              </div>
-              <div className="p-5 space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500">Loại tài liệu</span>
-                  <span className="text-sm font-medium text-gray-900">{getTypeLabel(doc.doc_type)}</span>
+          {/* Left Column (Main PDF Viewer) - 8 columns */}
+          <div className="lg:col-span-8 space-y-6">
+            <div className="bg-[#131A2B] rounded-2xl border border-white/10 overflow-hidden shadow-2xl relative group">
+              {/* PDF Toolbar Fake / Top bar for viewer */}
+              <div className="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-[#0B0F19]/80 to-transparent z-10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              
+              {isPDF ? (
+                <div className="w-full bg-[#131A2B] min-h-[600px] flex flex-col">
+                  <DynamicPDFViewer docId={doc.id} onDownload={handleDownload} />
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500">Dung lượng</span>
-                  <span className="text-sm font-medium text-gray-900">{formatBytes(doc.file_size)}</span>
+              ) : (
+                <div className="p-8 min-h-[500px] flex flex-col items-center justify-center text-center bg-white/5 backdrop-blur-sm">
+                  <FileText className="w-20 h-20 text-slate-500 mb-6" />
+                  <h3 className="text-xl font-bold text-white mb-2">Tài liệu không hỗ trợ xem trước</h3>
+                  <p className="text-slate-400 max-w-md mx-auto mb-8">
+                    Định dạng {doc.mime_type} hiện tại chưa được hỗ trợ xem trực tiếp trên nền tảng.
+                    Bạn vui lòng tải xuống để xem nội dung chi tiết.
+                  </p>
+                  <button onClick={handleDownload} className="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold transition-all">
+                    <Download className="w-5 h-5" />
+                    Tải tệp tin gốc
+                  </button>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500">Ngày tải lên</span>
-                  <span className="text-sm font-medium text-gray-900">{formatDate(doc.created_at)}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500">Định dạng (MIME)</span>
-                  <span className="text-sm font-medium text-gray-600 bg-gray-100 px-2 py-0.5 rounded text-xs">
-                    {doc.mime_type || 'Unknown'}
-                  </span>
-                </div>
-              </div>
+              )}
             </div>
 
-            {/* Card 2: Thông tin môn học liên quan (Chỉ hiện khi có doc.subject) */}
-            {doc.subject && (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <div className="p-4 border-b border-gray-100 flex items-center gap-2 bg-gray-50/50">
-                  <Book className="h-5 w-5 text-gray-500" />
-                  <h3 className="text-base font-semibold text-gray-900">Môn học liên kết</h3>
-                </div>
-                <div className="p-5">
-                  <div className="bg-blue-50/50 rounded-lg border border-blue-100 p-4 mb-4">
-                    <p className="text-xs font-medium text-blue-600 uppercase tracking-wider mb-1">
-                      {doc.subject.subject_code}
-                    </p>
-                    <p className="text-sm font-bold text-gray-900">
-                      {doc.subject.subject_name}
-                    </p>
-                  </div>
-                  
-                  <Link
-                    href={`/search/subject/${doc.subject.id}`}
-                    className="flex items-center justify-center gap-2 w-full px-4 py-2 text-sm bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 hover:text-blue-600 transition-colors font-medium shadow-sm"
-                  >
-                    <BookOpen className="h-4 w-4" />
-                    Xem tất cả tài liệu môn này
-                  </Link>
+            {/* Trích xuất văn bản OCR */}
+            {doc.preview && doc.preview.trim() && (
+              <div className="bg-[#131A2B] rounded-2xl border border-white/10 p-6 shadow-lg">
+                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-indigo-400" />
+                  Nội dung trích xuất tự động (OCR)
+                </h3>
+                <div className="bg-[#0B0F19] rounded-xl p-6 border border-white/5 max-h-96 overflow-y-auto custom-scrollbar">
+                  <pre className="text-sm text-slate-300 font-sans whitespace-pre-wrap leading-relaxed">
+                    {doc.preview}
+                  </pre>
                 </div>
               </div>
             )}
-            
           </div>
+
+          {/* Right Column (Sidebar Actions) - 4 columns */}
+          <div className="lg:col-span-4">
+            <div className="sticky top-24 space-y-6">
+              
+              {/* Main Action Card */}
+              <div className="bg-[#131A2B] rounded-3xl border border-white/10 p-6 shadow-2xl relative overflow-hidden">
+                {/* Glow effect */}
+                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-[40px] -mr-10 -mt-10 pointer-events-none"></div>
+                
+                <button 
+                  onClick={handleDownload} 
+                  className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] hover:-translate-y-0.5 relative z-10"
+                >
+                  <Download className="w-5 h-5" />
+                  Tải xuống ({formatBytes(doc.file_size)})
+                </button>
+
+                <div className="mt-6 flex justify-around border-t border-white/10 pt-6 relative z-10">
+                  <button className="flex flex-col items-center gap-2 text-slate-400 hover:text-white transition-colors group">
+                    <div className="p-3 bg-white/5 rounded-full group-hover:bg-indigo-500/20 transition-colors">
+                      <ThumbsUp className="w-5 h-5 group-hover:text-indigo-400" />
+                    </div>
+                    <span className="text-xs font-medium">Hữu ích</span>
+                  </button>
+                  <button className="flex flex-col items-center gap-2 text-slate-400 hover:text-white transition-colors group">
+                    <div className="p-3 bg-white/5 rounded-full group-hover:bg-emerald-500/20 transition-colors">
+                      <Share2 className="w-5 h-5 group-hover:text-emerald-400" />
+                    </div>
+                    <span className="text-xs font-medium">Chia sẻ</span>
+                  </button>
+                  <button className="flex flex-col items-center gap-2 text-slate-400 hover:text-white transition-colors group">
+                    <div className="p-3 bg-white/5 rounded-full group-hover:bg-amber-500/20 transition-colors">
+                      <Bookmark className="w-5 h-5 group-hover:text-amber-400" />
+                    </div>
+                    <span className="text-xs font-medium">Lưu lại</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Document Information Card */}
+              <div className="bg-[#131A2B] rounded-3xl border border-white/10 p-6 shadow-xl">
+                <h3 className="text-lg font-bold text-white mb-5">Chi tiết tài liệu</h3>
+                
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-slate-400">Định dạng file</span>
+                    <span className="text-xs font-mono font-medium text-indigo-300 bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-1 rounded-lg uppercase">
+                      {doc.mime_type.split('/').pop() || 'Unknown'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-slate-400">Phân loại</span>
+                    <span className="text-sm font-semibold text-slate-300">{getTypeLabel(doc.doc_type)}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-slate-400">Độ dài văn bản</span>
+                    <span className="text-sm font-semibold text-slate-300">{doc.total_content_length.toLocaleString()} ký tự</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Subject Info Card */}
+              {doc.subject && (
+                <div className="bg-[#131A2B] rounded-3xl border border-white/10 p-6 shadow-xl relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-[30px] -mr-8 -mt-8 pointer-events-none group-hover:bg-emerald-500/10 transition-colors"></div>
+                  
+                  <div className="flex items-start gap-4 mb-4 relative z-10">
+                    <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+                      <Book className="w-6 h-6 text-emerald-400" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-1">{doc.subject.subject_code}</p>
+                      <h3 className="text-base font-bold text-white line-clamp-2 leading-tight">
+                        {doc.subject.subject_name}
+                      </h3>
+                    </div>
+                  </div>
+
+                  <Link
+                    href={`/subject/${doc.subject.id}`}
+                    className="flex items-center justify-center w-full px-4 py-2.5 bg-white/5 border border-white/10 text-sm font-semibold text-slate-300 rounded-xl hover:bg-white/10 hover:text-white transition-all relative z-10"
+                  >
+                    Xem tất cả tài liệu môn này
+                  </Link>
+                </div>
+              )}
+
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -340,10 +337,10 @@ function DocumentDetailContent() {
 
 export default function DocumentDetailPage() {
   return (
-    <Suspense 
+    <Suspense
       fallback={
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <Loader2 className="h-10 w-10 animate-spin text-blue-600" />
+        <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center">
+          <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
         </div>
       }
     >
