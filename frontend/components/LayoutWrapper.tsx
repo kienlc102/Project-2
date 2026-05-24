@@ -17,7 +17,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0B0F19]">
+    <div className="min-h-screen flex flex-col bg-slate-50">
       <Navbar onMenuClick={() => setIsSidebarOpen(true)} />
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       

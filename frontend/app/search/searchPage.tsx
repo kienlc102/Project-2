@@ -37,10 +37,10 @@ const formatBytes = (bytes: number, decimals = 2) => {
 
 const getFileIcon = (type: string) => {
   switch (type) {
-    case 'lecture': return <BookOpen className="w-7 h-7 text-indigo-400" />;
-    case 'exercise': return <FileCode className="w-7 h-7 text-emerald-400" />;
-    case 'exam': return <FileText className="w-7 h-7 text-rose-400" />;
-    default: return <File className="w-7 h-7 text-slate-400" />;
+    case 'lecture': return <BookOpen className="w-7 h-7 text-indigo-600" />;
+    case 'exercise': return <FileCode className="w-7 h-7 text-emerald-600" />;
+    case 'exam': return <FileText className="w-7 h-7 text-rose-600" />;
+    default: return <File className="w-7 h-7 text-slate-600" />;
   }
 };
 
@@ -119,18 +119,18 @@ function SearchContent() {
     <div className="max-w-7xl mx-auto px-4 py-12 relative z-10">
       {/* Top Bar: Back button & Search Input */}
       <div className="flex flex-col md:flex-row items-center gap-6 mb-10">
-        <Link href="/" className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-300 shadow-sm transition hover:bg-white/10 hover:text-white backdrop-blur-md self-start md:self-auto shrink-0">
+        <Link href="/" className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-md transition hover:bg-slate-100 hover:text-slate-900 backdrop-blur-md self-start md:self-auto shrink-0">
           <ArrowLeft className="w-4 h-4" />
           Trang chủ
         </Link>
         
         <form onSubmit={handleSearchSubmit} className="flex-1 w-full relative">
-          <div className="relative flex items-center w-full h-14 rounded-2xl focus-within:ring-2 focus-within:ring-indigo-500 bg-[#131A2B] border border-white/10 transition-all overflow-hidden shadow-inner">
+          <div className="relative flex items-center w-full h-14 rounded-2xl focus-within:ring-2 focus-within:ring-indigo-500 bg-white border border-slate-200 transition-all overflow-hidden shadow-inner">
             <div className="grid place-items-center h-full w-14 text-slate-500">
               <SearchIcon className="h-6 w-6" />
             </div>
             <input
-              className="peer h-full w-full outline-none text-base text-white pr-4 bg-transparent placeholder-slate-600"
+              className="peer h-full w-full outline-none text-base text-slate-900 pr-4 bg-transparent placeholder-slate-600"
               type="text"
               placeholder="Tìm kiếm tài liệu, giáo trình, đề thi..."
               value={keyword}
@@ -145,15 +145,15 @@ function SearchContent() {
 
       {/* Results Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white tracking-tight">Kết quả tìm kiếm</h1>
-        <p className="text-slate-400 mt-2 text-lg">
+        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Kết quả tìm kiếm</h1>
+        <p className="text-slate-600 mt-2 text-lg">
           {loading ? 'Đang tìm kiếm...' : `Tìm thấy ${results.length} tài liệu cho "${initialQuery}"`}
         </p>
       </div>
 
       {/* Error Message */}
       {error && (
-        <div className="bg-rose-500/10 text-rose-400 p-5 rounded-2xl border border-rose-500/20 mb-8 flex items-center gap-3 font-medium">
+        <div className="bg-rose-50 text-rose-600 p-5 rounded-2xl border border-rose-200 mb-8 flex items-center gap-3 font-medium">
           <XCircle className="w-6 h-6 shrink-0" />
           {error}
         </div>
@@ -166,30 +166,30 @@ function SearchContent() {
         </div>
       ) : results.length === 0 && !error ? (
         /* Empty State */
-        <div className="text-center py-24 bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px] pointer-events-none"></div>
+        <div className="text-center py-24 bg-white backdrop-blur-xl rounded-3xl border border-slate-200 shadow-2xl relative overflow-hidden">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-indigo-50 rounded-full blur-[80px] pointer-events-none"></div>
           <SearchIcon className="w-20 h-20 text-slate-600 mx-auto mb-6 relative z-10" />
-          <h3 className="text-2xl font-bold text-white mb-3 relative z-10">Không tìm thấy tài liệu nào</h3>
-          <p className="text-slate-400 relative z-10">Hãy thử sử dụng các từ khóa khác hoặc kiểm tra lại lỗi chính tả.</p>
+          <h3 className="text-2xl font-bold text-slate-900 mb-3 relative z-10">Không tìm thấy tài liệu nào</h3>
+          <p className="text-slate-600 relative z-10">Hãy thử sử dụng các từ khóa khác hoặc kiểm tra lại lỗi chính tả.</p>
         </div>
       ) : (
         /* Results Grid */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {results.map((doc) => (
-            <Link key={doc.id} href={`/search/${doc.id}`} className="bg-[#131A2B] p-6 rounded-3xl border border-white/10 hover:shadow-[0_10px_30px_rgba(99,102,241,0.15)] hover:border-indigo-500/30 transition-all duration-300 group flex flex-col cursor-pointer relative overflow-hidden shadow-inner">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-[40px] -mr-10 -mt-10 transition-all duration-300 group-hover:bg-indigo-500/20"></div>
+            <Link key={doc.id} href={`/search/${doc.id}`} className="bg-white p-6 rounded-3xl border border-slate-200 hover:shadow-[0_10px_30px_rgba(99,102,241,0.15)] hover:border-indigo-500/30 transition-all duration-300 group flex flex-col cursor-pointer relative overflow-hidden shadow-inner">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-[40px] -mr-10 -mt-10 transition-all duration-300 group-hover:bg-indigo-100"></div>
               
               <div className="flex items-start gap-4 mb-5 relative z-10">
-                <div className="p-3 bg-white/5 rounded-2xl border border-white/10 shadow-sm group-hover:scale-110 transition-transform duration-300">
+                <div className="p-3 bg-white rounded-2xl border border-slate-200 shadow-md group-hover:scale-110 transition-transform duration-300">
                   {getFileIcon(doc.doc_type)}
                 </div>
-                <h3 className="font-bold text-white line-clamp-2 leading-tight flex-1 group-hover:text-indigo-300 transition-colors mt-1">
+                <h3 className="font-bold text-slate-900 line-clamp-2 leading-tight flex-1 group-hover:text-indigo-700 transition-colors mt-1">
                   {doc.file_name}
                 </h3>
               </div>
-              <div className="mt-auto flex items-center justify-between text-sm text-slate-400 pt-5 border-t border-white/10 relative z-10">
-                <span className="bg-white/5 px-3 py-1.5 rounded-lg font-medium text-slate-300 border border-white/5">{getTypeName(doc.doc_type)}</span>
-                <span className="flex items-center gap-1.5 font-medium"><HardDrive className="w-4 h-4 text-indigo-400"/> {formatBytes(doc.file_size)}</span>
+              <div className="mt-auto flex items-center justify-between text-sm text-slate-600 pt-5 border-t border-slate-200 relative z-10">
+                <span className="bg-white px-3 py-1.5 rounded-lg font-medium text-slate-700 border border-slate-100">{getTypeName(doc.doc_type)}</span>
+                <span className="flex items-center gap-1.5 font-medium"><HardDrive className="w-4 h-4 text-indigo-600"/> {formatBytes(doc.file_size)}</span>
               </div>
             </Link>
           ))}
@@ -203,7 +203,7 @@ function SearchContent() {
 // Bọc SearchContent trong Suspense là bắt buộc trong Next.js App Router khi dùng useSearchParams
 export default function SearchPage() {
   return (
-    <div className="min-h-screen bg-[#0B0F19] font-sans relative overflow-hidden">
+    <div className="min-h-screen bg-slate-50 font-sans relative overflow-hidden">
       {/* Background Orbs */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-600/10 blur-[120px] pointer-events-none" />
       <div className="absolute top-[20%] right-[-10%] w-[30%] h-[30%] rounded-full bg-fuchsia-600/10 blur-[120px] pointer-events-none" />

@@ -222,7 +222,7 @@ export default function AccountPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0B0F19]">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
@@ -230,9 +230,9 @@ export default function AccountPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0B0F19] px-4">
-        <div className="w-full max-w-md bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-8">
-          <div className="p-4 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl flex items-center gap-2">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+        <div className="w-full max-w-md bg-white backdrop-blur-xl border border-slate-200 rounded-3xl shadow-2xl p-8">
+          <div className="p-4 bg-rose-50 border border-rose-200 text-rose-600 rounded-xl flex items-center gap-2">
             <X className="w-5 h-5 shrink-0" />
             {error}
           </div>
@@ -243,8 +243,8 @@ export default function AccountPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0B0F19]">
-        <div className="text-slate-400 text-lg">Không tìm thấy thông tin user</div>
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-slate-600 text-lg">Không tìm thấy thông tin user</div>
       </div>
     );
   }
@@ -260,35 +260,35 @@ export default function AccountPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0B0F19] relative overflow-hidden px-4 py-12">
+    <div className="min-h-screen bg-slate-50 relative overflow-hidden px-4 py-12">
       {/* Background Orbs */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-600/20 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-fuchsia-600/20 blur-[120px] pointer-events-none" />
 
       <div className="max-w-3xl mx-auto space-y-6 relative z-10">
         {/* Header Card */}
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-8 transition-all hover:bg-white/[0.07]">
+        <div className="bg-white backdrop-blur-xl border border-slate-200 rounded-3xl shadow-2xl p-8 transition-all hover:bg-slate-50">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mb-0">
             <div className="flex items-center gap-5 w-full sm:w-auto">
               <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/25">
-                <User className="w-8 h-8 text-white" />
+                <User className="w-8 h-8 text-slate-900" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">Hồ sơ của tôi</h1>
-                <p className="text-slate-400">Quản lý thông tin tài khoản</p>
+                <h1 className="text-2xl font-bold text-slate-900">Hồ sơ của tôi</h1>
+                <p className="text-slate-600">Quản lý thông tin tài khoản</p>
               </div>
             </div>
             <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
               <button
                 onClick={() => router.push('/')}
-                className="flex items-center gap-2 px-4 py-2.5 bg-white/10 hover:bg-white/20 border border-white/10 text-white rounded-xl transition duration-300 font-medium"
+                className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-900 rounded-xl transition duration-300 font-medium"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>Trang chủ</span>
               </button>
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 px-4 py-2.5 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 rounded-xl transition duration-300 font-medium"
+                className="flex items-center gap-2 px-4 py-2.5 bg-rose-50 hover:bg-rose-500/20 border border-rose-200 text-rose-600 rounded-xl transition duration-300 font-medium"
               >
                 <LogOut className="w-4 h-4" />
                 <span>Đăng xuất</span>
@@ -298,14 +298,14 @@ export default function AccountPage() {
         </div>
 
         {/* Update Full Name */}
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-8 transition-all hover:bg-white/[0.07]">
-          <h2 className="text-xl font-bold text-white mb-5">Cập nhật Họ và tên</h2>
+        <div className="bg-white backdrop-blur-xl border border-slate-200 rounded-3xl shadow-2xl p-8 transition-all hover:bg-slate-50">
+          <h2 className="text-xl font-bold text-slate-900 mb-5">Cập nhật Họ và tên</h2>
           
           {fullNameMessage && (
             <div className={`mb-5 p-4 rounded-xl flex items-center gap-3 text-sm ${
               fullNameMessage.type === 'success'
-                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+                : 'bg-rose-50 text-rose-600 border border-rose-200'
             }`}>
               {fullNameMessage.type === 'success' ? (
                 <Check className="w-5 h-5 shrink-0" />
@@ -323,7 +323,7 @@ export default function AccountPage() {
                 value={newFullName}
                 onChange={(e) => setNewFullName(e.target.value)}
                 placeholder="Nhập họ và tên"
-                className="w-full px-4 py-3 bg-[#131A2B] border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all placeholder-slate-500 shadow-inner"
+                className="w-full px-4 py-3 bg-white border border-slate-200 text-slate-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all placeholder-slate-500 shadow-inner"
               />
               <div className="flex gap-3">
                 <button
@@ -339,7 +339,7 @@ export default function AccountPage() {
                     setNewFullName(user?.fullName || '');
                     setFullNameMessage(null);
                   }}
-                  className="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 font-semibold rounded-xl transition duration-200"
+                  className="flex-1 px-4 py-3 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-semibold rounded-xl transition duration-200"
                 >
                   Huỷ
                 </button>
@@ -347,7 +347,7 @@ export default function AccountPage() {
             </div>
           ) : (
             <div>
-              <div className="px-4 py-3.5 bg-[#131A2B] border border-white/10 rounded-xl text-white mb-4 shadow-inner">
+              <div className="px-4 py-3.5 bg-white border border-slate-200 rounded-xl text-slate-900 mb-4 shadow-inner">
                 {user?.fullName}
               </div>
               <button
@@ -356,7 +356,7 @@ export default function AccountPage() {
                   setNewFullName(user?.fullName || '');
                   setFullNameMessage(null);
                 }}
-                className="px-6 py-2.5 bg-white/10 hover:bg-white/20 border border-white/10 text-white font-medium rounded-xl transition duration-300"
+                className="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-900 font-medium rounded-xl transition duration-300"
               >
                 Chỉnh sửa
               </button>
@@ -365,14 +365,14 @@ export default function AccountPage() {
         </div>
 
         {/* Update Email */}
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-8 transition-all hover:bg-white/[0.07]">
-          <h2 className="text-xl font-bold text-white mb-5">Cập nhật Email</h2>
+        <div className="bg-white backdrop-blur-xl border border-slate-200 rounded-3xl shadow-2xl p-8 transition-all hover:bg-slate-50">
+          <h2 className="text-xl font-bold text-slate-900 mb-5">Cập nhật Email</h2>
           
           {emailMessage && (
             <div className={`mb-5 p-4 rounded-xl flex items-center gap-3 text-sm ${
               emailMessage.type === 'success'
-                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+                : 'bg-rose-50 text-rose-600 border border-rose-200'
             }`}>
               {emailMessage.type === 'success' ? (
                 <Check className="w-5 h-5 shrink-0" />
@@ -390,7 +390,7 @@ export default function AccountPage() {
                 value={newEmail}
                 onChange={(e) => setNewEmail(e.target.value)}
                 placeholder="Nhập email mới"
-                className="w-full px-4 py-3 bg-[#131A2B] border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all placeholder-slate-500 shadow-inner"
+                className="w-full px-4 py-3 bg-white border border-slate-200 text-slate-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all placeholder-slate-500 shadow-inner"
               />
               <div className="flex gap-3">
                 <button
@@ -406,7 +406,7 @@ export default function AccountPage() {
                     setNewEmail(user?.email || '');
                     setEmailMessage(null);
                   }}
-                  className="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 font-semibold rounded-xl transition duration-200"
+                  className="flex-1 px-4 py-3 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-semibold rounded-xl transition duration-200"
                 >
                   Huỷ
                 </button>
@@ -414,7 +414,7 @@ export default function AccountPage() {
             </div>
           ) : (
             <div>
-              <div className="px-4 py-3.5 bg-[#131A2B] border border-white/10 rounded-xl text-white mb-4 shadow-inner">
+              <div className="px-4 py-3.5 bg-white border border-slate-200 rounded-xl text-slate-900 mb-4 shadow-inner">
                 {user?.email}
               </div>
               <button
@@ -423,7 +423,7 @@ export default function AccountPage() {
                   setNewEmail(user?.email || '');
                   setEmailMessage(null);
                 }}
-                className="px-6 py-2.5 bg-white/10 hover:bg-white/20 border border-white/10 text-white font-medium rounded-xl transition duration-300"
+                className="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-900 font-medium rounded-xl transition duration-300"
               >
                 Chỉnh sửa
               </button>
@@ -432,14 +432,14 @@ export default function AccountPage() {
         </div>
 
         {/* Update Password */}
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-8 transition-all hover:bg-white/[0.07]">
-          <h2 className="text-xl font-bold text-white mb-5">Cập nhật Mật khẩu</h2>
+        <div className="bg-white backdrop-blur-xl border border-slate-200 rounded-3xl shadow-2xl p-8 transition-all hover:bg-slate-50">
+          <h2 className="text-xl font-bold text-slate-900 mb-5">Cập nhật Mật khẩu</h2>
           
           {passwordMessage && (
             <div className={`mb-5 p-4 rounded-xl flex items-center gap-3 text-sm ${
               passwordMessage.type === 'success'
-                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+                : 'bg-rose-50 text-rose-600 border border-rose-200'
             }`}>
               {passwordMessage.type === 'success' ? (
                 <Check className="w-5 h-5 shrink-0" />
@@ -457,21 +457,21 @@ export default function AccountPage() {
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 placeholder="Mật khẩu hiện tại"
-                className="w-full px-4 py-3 bg-[#131A2B] border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all placeholder-slate-500 shadow-inner"
+                className="w-full px-4 py-3 bg-white border border-slate-200 text-slate-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all placeholder-slate-500 shadow-inner"
               />
               <input
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="Mật khẩu mới"
-                className="w-full px-4 py-3 bg-[#131A2B] border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all placeholder-slate-500 shadow-inner"
+                className="w-full px-4 py-3 bg-white border border-slate-200 text-slate-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all placeholder-slate-500 shadow-inner"
               />
               <input
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Xác nhận mật khẩu mới"
-                className="w-full px-4 py-3 bg-[#131A2B] border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all placeholder-slate-500 shadow-inner"
+                className="w-full px-4 py-3 bg-white border border-slate-200 text-slate-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all placeholder-slate-500 shadow-inner"
               />
               <div className="flex gap-3 pt-2">
                 <button
@@ -489,7 +489,7 @@ export default function AccountPage() {
                     setConfirmPassword('');
                     setPasswordMessage(null);
                   }}
-                  className="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 font-semibold rounded-xl transition duration-200"
+                  className="flex-1 px-4 py-3 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-semibold rounded-xl transition duration-200"
                 >
                   Huỷ
                 </button>
@@ -501,7 +501,7 @@ export default function AccountPage() {
                 setEditingPassword(true);
                 setPasswordMessage(null);
               }}
-              className="px-6 py-2.5 bg-white/10 hover:bg-white/20 border border-white/10 text-white font-medium rounded-xl transition duration-300"
+              className="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-900 font-medium rounded-xl transition duration-300"
             >
               Thay đổi mật khẩu
             </button>
@@ -509,18 +509,18 @@ export default function AccountPage() {
         </div>
 
         {/* Account Info */}
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-8 transition-all hover:bg-white/[0.07]">
-          <h2 className="text-xl font-bold text-white mb-6">Thông tin bổ sung</h2>
+        <div className="bg-white backdrop-blur-xl border border-slate-200 rounded-3xl shadow-2xl p-8 transition-all hover:bg-slate-50">
+          <h2 className="text-xl font-bold text-slate-900 mb-6">Thông tin bổ sung</h2>
           
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-slate-400 mb-2">
+              <label className="block text-sm font-medium text-slate-600 mb-2">
                 Trạng thái xác minh
               </label>
-              <div className="px-4 py-3.5 bg-[#131A2B] border border-white/10 rounded-xl">
+              <div className="px-4 py-3.5 bg-white border border-slate-200 rounded-xl">
                 <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-semibold ${
                   user?.isVerified 
-                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
+                    ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' 
                     : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
                 }`}>
                   {user?.isVerified ? (
@@ -533,19 +533,19 @@ export default function AccountPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-400 mb-2">
+              <label className="block text-sm font-medium text-slate-600 mb-2">
                 Ngày tạo tài khoản
               </label>
-              <div className="px-4 py-3.5 bg-[#131A2B] border border-white/10 rounded-xl text-white text-sm">
+              <div className="px-4 py-3.5 bg-white border border-slate-200 rounded-xl text-slate-900 text-sm">
                 {user && formatDate(user.createdAt)}
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-400 mb-2">
+              <label className="block text-sm font-medium text-slate-600 mb-2">
                 ID tài khoản
               </label>
-              <div className="px-4 py-3.5 bg-[#131A2B] border border-white/10 rounded-xl text-indigo-300 font-mono text-sm">
+              <div className="px-4 py-3.5 bg-white border border-slate-200 rounded-xl text-indigo-700 font-mono text-sm">
                 #{user?.id}
               </div>
             </div>
@@ -553,7 +553,7 @@ export default function AccountPage() {
         </div>
 
         {/* Danger Zone */}
-        <div className="bg-white/5 backdrop-blur-xl border border-rose-500/20 rounded-3xl shadow-2xl p-8 transition-all hover:bg-rose-500/5">
+        <div className="bg-white backdrop-blur-xl border border-rose-200 rounded-3xl shadow-2xl p-8 transition-all hover:bg-rose-50">
           <h2 className="text-xl font-bold text-rose-500 mb-5 flex items-center gap-3">
             <Trash2 className="w-6 h-6" />
             Vùng nguy hiểm
@@ -562,8 +562,8 @@ export default function AccountPage() {
           {deleteMessage && (
             <div className={`mb-5 p-4 rounded-xl flex items-center gap-3 text-sm ${
               deleteMessage.type === 'success'
-                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+                : 'bg-rose-50 text-rose-600 border border-rose-200'
             }`}>
               {deleteMessage.type === 'success' ? (
                 <Check className="w-5 h-5 shrink-0" />
@@ -574,20 +574,20 @@ export default function AccountPage() {
             </div>
           )}
 
-          <p className="text-slate-400 text-sm mb-6">
+          <p className="text-slate-600 text-sm mb-6">
             Hành động này sẽ xóa vĩnh viễn tài khoản và tất cả dữ liệu của bạn. Không thể hoàn tác.
           </p>
 
           {!deleteConfirming ? (
             <button
               onClick={() => setDeleteConfirming(true)}
-              className="px-6 py-3 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-xl transition duration-300 font-medium"
+              className="px-6 py-3 bg-rose-50 hover:bg-rose-500/20 text-rose-600 border border-rose-500/30 rounded-xl transition duration-300 font-medium"
             >
               Xóa tài khoản vĩnh viễn
             </button>
           ) : (
-            <div className="space-y-4 p-5 bg-rose-500/5 border border-rose-500/20 rounded-2xl backdrop-blur-sm">
-              <p className="text-sm text-rose-400 font-medium">
+            <div className="space-y-4 p-5 bg-rose-50 border border-rose-200 rounded-2xl backdrop-blur-sm">
+              <p className="text-sm text-rose-600 font-medium">
                 ⚠️ Cảnh báo: Vui lòng nhập mật khẩu để xác nhận xóa tài khoản!
               </p>
               
@@ -596,7 +596,7 @@ export default function AccountPage() {
                 value={deleteConfirmPassword}
                 onChange={(e) => setDeleteConfirmPassword(e.target.value)}
                 placeholder="Nhập mật khẩu để xác nhận"
-                className="w-full px-4 py-3 bg-[#131A2B] border border-rose-500/30 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all placeholder-rose-900/50"
+                className="w-full px-4 py-3 bg-white border border-rose-500/30 text-slate-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-all placeholder-rose-900/50"
               />
               
               <div className="flex gap-3 pt-2">
@@ -613,7 +613,7 @@ export default function AccountPage() {
                     setDeleteConfirmPassword('');
                     setDeleteMessage(null);
                   }}
-                  className="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 font-semibold rounded-xl transition duration-200"
+                  className="flex-1 px-4 py-3 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-semibold rounded-xl transition duration-200"
                 >
                   Huỷ
                 </button>

@@ -26,7 +26,7 @@ import {
 const DynamicPDFViewer = dynamic(() => import('@/components/PDFViewer'), {
   ssr: false,
   loading: () => (
-    <div className="flex items-center justify-center h-[600px] bg-[#131A2B] w-full">
+    <div className="flex items-center justify-center h-[600px] bg-white w-full">
       <Loader2 className="h-10 w-10 animate-spin text-indigo-500" />
     </div>
   ),
@@ -122,10 +122,10 @@ function DocumentDetailContent() {
   // UI Đang tải
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
-          <p className="text-slate-400 font-medium">Đang tải tài liệu...</p>
+          <p className="text-slate-600 font-medium">Đang tải tài liệu...</p>
         </div>
       </div>
     );
@@ -134,15 +134,15 @@ function DocumentDetailContent() {
   // UI Lỗi
   if (error || !doc) {
     return (
-      <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center px-4 relative overflow-hidden">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 relative overflow-hidden">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-rose-600/10 blur-[120px] pointer-events-none" />
-        <div className="text-center max-w-md p-8 bg-white/5 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 relative z-10">
+        <div className="text-center max-w-md p-8 bg-white backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-200 relative z-10">
           <AlertCircle className="h-16 w-16 text-rose-500 mx-auto mb-6" />
-          <h2 className="text-2xl font-bold text-white mb-3">Không tìm thấy tài liệu</h2>
-          <p className="text-slate-400 mb-8">{error || 'Tài liệu không tồn tại hoặc đã bị xóa.'}</p>
+          <h2 className="text-2xl font-bold text-slate-900 mb-3">Không tìm thấy tài liệu</h2>
+          <p className="text-slate-600 mb-8">{error || 'Tài liệu không tồn tại hoặc đã bị xóa.'}</p>
           <Link
             href="/document"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/10 text-white rounded-xl transition duration-300 font-medium"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-900 rounded-xl transition duration-300 font-medium"
           >
             <ArrowLeft className="h-4 w-4" />
             Về trang chủ
@@ -155,40 +155,40 @@ function DocumentDetailContent() {
   const isPDF = doc.mime_type === 'application/pdf';
 
   return (
-    <div className="min-h-screen bg-[#0B0F19] py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         
         {/* Header / Breadcrumb (StuDocu Style) */}
         <div className="mb-8">
-          <nav className="flex flex-wrap items-center text-sm text-slate-400 gap-2 mb-4 font-medium">
-            <Link href="/" className="hover:text-indigo-400 transition-colors">EduLearn</Link>
+          <nav className="flex flex-wrap items-center text-sm text-slate-600 gap-2 mb-4 font-medium">
+            <Link href="/" className="hover:text-indigo-600 transition-colors">EduLearn</Link>
             <ChevronRight className="w-4 h-4 text-slate-600" />
-            <Link href="/document" className="hover:text-indigo-400 transition-colors">Tài liệu</Link>
+            <Link href="/document" className="hover:text-indigo-600 transition-colors">Tài liệu</Link>
             {doc.subject && (
               <>
                 <ChevronRight className="w-4 h-4 text-slate-600" />
-                <Link href={`/subject/${doc.subject.id}`} className="hover:text-indigo-400 transition-colors">
+                <Link href={`/subject/${doc.subject.id}`} className="hover:text-indigo-600 transition-colors">
                   {doc.subject.subject_name}
                 </Link>
               </>
             )}
             <ChevronRight className="w-4 h-4 text-slate-600" />
-            <span className="text-slate-300 truncate max-w-[200px] sm:max-w-xs md:max-w-md">{doc.file_name}</span>
+            <span className="text-slate-700 truncate max-w-[200px] sm:max-w-xs md:max-w-md">{doc.file_name}</span>
           </nav>
           
-          <h1 className="text-3xl md:text-4xl font-extrabold text-white leading-tight mb-4 tracking-tight">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 leading-tight mb-4 tracking-tight">
             {doc.file_name}
           </h1>
 
-          <div className="flex flex-wrap items-center gap-4 text-sm text-slate-400">
+          <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600">
             {doc.subject && (
-              <Link href={`/subject/${doc.subject.id}`} className="flex items-center gap-1.5 hover:text-emerald-400 transition-colors">
+              <Link href={`/subject/${doc.subject.id}`} className="flex items-center gap-1.5 hover:text-emerald-600 transition-colors">
                 <Book className="w-4 h-4 text-emerald-500" />
-                <span className="font-semibold text-slate-300">{doc.subject.subject_name}</span>
+                <span className="font-semibold text-slate-700">{doc.subject.subject_name}</span>
               </Link>
             )}
             <span className="flex items-center gap-1.5">
-              <Calendar className="w-4 h-4 text-indigo-400" />
+              <Calendar className="w-4 h-4 text-indigo-600" />
               Đăng ngày {formatDate(doc.created_at)}
             </span>
           </div>
@@ -199,19 +199,19 @@ function DocumentDetailContent() {
           
           {/* Left Column (Main PDF Viewer) - 8 columns */}
           <div className="lg:col-span-8 space-y-6">
-            <div className="bg-[#131A2B] rounded-2xl border border-white/10 overflow-hidden shadow-2xl relative group">
+            <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xl relative group">
               {/* PDF Toolbar Fake / Top bar for viewer */}
               <div className="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-[#0B0F19]/80 to-transparent z-10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"></div>
               
               {isPDF ? (
-                <div className="w-full bg-[#131A2B] min-h-[600px] flex flex-col">
+                <div className="w-full bg-white min-h-[600px] flex flex-col">
                   <DynamicPDFViewer docId={doc.id} onDownload={handleDownload} />
                 </div>
               ) : (
-                <div className="p-8 min-h-[500px] flex flex-col items-center justify-center text-center bg-white/5 backdrop-blur-sm">
+                <div className="p-8 min-h-[500px] flex flex-col items-center justify-center text-center bg-white backdrop-blur-sm">
                   <FileText className="w-20 h-20 text-slate-500 mb-6" />
-                  <h3 className="text-xl font-bold text-white mb-2">Tài liệu không hỗ trợ xem trước</h3>
-                  <p className="text-slate-400 max-w-md mx-auto mb-8">
+                  <h3 className="text-xl font-bold text-slate-900 mb-2">Tài liệu không hỗ trợ xem trước</h3>
+                  <p className="text-slate-600 max-w-md mx-auto mb-8">
                     Định dạng {doc.mime_type} hiện tại chưa được hỗ trợ xem trực tiếp trên nền tảng.
                     Bạn vui lòng tải xuống để xem nội dung chi tiết.
                   </p>
@@ -225,13 +225,13 @@ function DocumentDetailContent() {
 
             {/* Trích xuất văn bản OCR */}
             {doc.preview && doc.preview.trim() && (
-              <div className="bg-[#131A2B] rounded-2xl border border-white/10 p-6 shadow-lg">
-                <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-indigo-400" />
+              <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-lg">
+                <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-indigo-600" />
                   Nội dung trích xuất tự động (OCR)
                 </h3>
-                <div className="bg-[#0B0F19] rounded-xl p-6 border border-white/5 max-h-96 overflow-y-auto custom-scrollbar">
-                  <pre className="text-sm text-slate-300 font-sans whitespace-pre-wrap leading-relaxed">
+                <div className="bg-slate-50 rounded-xl p-6 border border-slate-100 max-h-96 overflow-y-auto custom-scrollbar">
+                  <pre className="text-sm text-slate-700 font-sans whitespace-pre-wrap leading-relaxed">
                     {doc.preview}
                   </pre>
                 </div>
@@ -244,9 +244,9 @@ function DocumentDetailContent() {
             <div className="sticky top-24 space-y-6">
               
               {/* Main Action Card */}
-              <div className="bg-[#131A2B] rounded-3xl border border-white/10 p-6 shadow-2xl relative overflow-hidden">
+              <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-2xl relative overflow-hidden">
                 {/* Glow effect */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-[40px] -mr-10 -mt-10 pointer-events-none"></div>
+                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full blur-[40px] -mr-10 -mt-10 pointer-events-none"></div>
                 
                 <button 
                   onClick={handleDownload} 
@@ -256,21 +256,21 @@ function DocumentDetailContent() {
                   Tải xuống ({formatBytes(doc.file_size)})
                 </button>
 
-                <div className="mt-6 flex justify-around border-t border-white/10 pt-6 relative z-10">
-                  <button className="flex flex-col items-center gap-2 text-slate-400 hover:text-white transition-colors group">
-                    <div className="p-3 bg-white/5 rounded-full group-hover:bg-indigo-500/20 transition-colors">
-                      <ThumbsUp className="w-5 h-5 group-hover:text-indigo-400" />
+                <div className="mt-6 flex justify-around border-t border-slate-200 pt-6 relative z-10">
+                  <button className="flex flex-col items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors group">
+                    <div className="p-3 bg-white rounded-full group-hover:bg-indigo-100 transition-colors">
+                      <ThumbsUp className="w-5 h-5 group-hover:text-indigo-600" />
                     </div>
                     <span className="text-xs font-medium">Hữu ích</span>
                   </button>
-                  <button className="flex flex-col items-center gap-2 text-slate-400 hover:text-white transition-colors group">
-                    <div className="p-3 bg-white/5 rounded-full group-hover:bg-emerald-500/20 transition-colors">
-                      <Share2 className="w-5 h-5 group-hover:text-emerald-400" />
+                  <button className="flex flex-col items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors group">
+                    <div className="p-3 bg-white rounded-full group-hover:bg-emerald-500/20 transition-colors">
+                      <Share2 className="w-5 h-5 group-hover:text-emerald-600" />
                     </div>
                     <span className="text-xs font-medium">Chia sẻ</span>
                   </button>
-                  <button className="flex flex-col items-center gap-2 text-slate-400 hover:text-white transition-colors group">
-                    <div className="p-3 bg-white/5 rounded-full group-hover:bg-amber-500/20 transition-colors">
+                  <button className="flex flex-col items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors group">
+                    <div className="p-3 bg-white rounded-full group-hover:bg-amber-500/20 transition-colors">
                       <Bookmark className="w-5 h-5 group-hover:text-amber-400" />
                     </div>
                     <span className="text-xs font-medium">Lưu lại</span>
@@ -279,39 +279,39 @@ function DocumentDetailContent() {
               </div>
 
               {/* Document Information Card */}
-              <div className="bg-[#131A2B] rounded-3xl border border-white/10 p-6 shadow-xl">
-                <h3 className="text-lg font-bold text-white mb-5">Chi tiết tài liệu</h3>
+              <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xl">
+                <h3 className="text-lg font-bold text-slate-900 mb-5">Chi tiết tài liệu</h3>
                 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-slate-400">Định dạng file</span>
-                    <span className="text-xs font-mono font-medium text-indigo-300 bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-1 rounded-lg uppercase">
+                    <span className="text-sm text-slate-600">Định dạng file</span>
+                    <span className="text-xs font-mono font-medium text-indigo-700 bg-indigo-50 border border-indigo-200 px-2.5 py-1 rounded-lg uppercase">
                       {doc.mime_type.split('/').pop() || 'Unknown'}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-slate-400">Phân loại</span>
-                    <span className="text-sm font-semibold text-slate-300">{getTypeLabel(doc.doc_type)}</span>
+                    <span className="text-sm text-slate-600">Phân loại</span>
+                    <span className="text-sm font-semibold text-slate-700">{getTypeLabel(doc.doc_type)}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-slate-400">Độ dài văn bản</span>
-                    <span className="text-sm font-semibold text-slate-300">{doc.total_content_length.toLocaleString()} ký tự</span>
+                    <span className="text-sm text-slate-600">Độ dài văn bản</span>
+                    <span className="text-sm font-semibold text-slate-700">{doc.total_content_length.toLocaleString()} ký tự</span>
                   </div>
                 </div>
               </div>
 
               {/* Subject Info Card */}
               {doc.subject && (
-                <div className="bg-[#131A2B] rounded-3xl border border-white/10 p-6 shadow-xl relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-[30px] -mr-8 -mt-8 pointer-events-none group-hover:bg-emerald-500/10 transition-colors"></div>
+                <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xl relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-[30px] -mr-8 -mt-8 pointer-events-none group-hover:bg-emerald-50 transition-colors"></div>
                   
                   <div className="flex items-start gap-4 mb-4 relative z-10">
-                    <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-                      <Book className="w-6 h-6 text-emerald-400" />
+                    <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
+                      <Book className="w-6 h-6 text-emerald-600" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-1">{doc.subject.subject_code}</p>
-                      <h3 className="text-base font-bold text-white line-clamp-2 leading-tight">
+                      <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-1">{doc.subject.subject_code}</p>
+                      <h3 className="text-base font-bold text-slate-900 line-clamp-2 leading-tight">
                         {doc.subject.subject_name}
                       </h3>
                     </div>
@@ -319,7 +319,7 @@ function DocumentDetailContent() {
 
                   <Link
                     href={`/subject/${doc.subject.id}`}
-                    className="flex items-center justify-center w-full px-4 py-2.5 bg-white/5 border border-white/10 text-sm font-semibold text-slate-300 rounded-xl hover:bg-white/10 hover:text-white transition-all relative z-10"
+                    className="flex items-center justify-center w-full px-4 py-2.5 bg-white border border-slate-200 text-sm font-semibold text-slate-700 rounded-xl hover:bg-slate-100 hover:text-slate-900 transition-all relative z-10"
                   >
                     Xem tất cả tài liệu môn này
                   </Link>
@@ -339,7 +339,7 @@ export default function DocumentDetailPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#0B0F19] flex items-center justify-center">
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center">
           <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
         </div>
       }

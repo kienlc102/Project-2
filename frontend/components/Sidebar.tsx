@@ -41,24 +41,24 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
       {/* Sidebar Container */}
       <aside className={`
-        fixed top-0 left-0 bottom-0 z-50 w-64 bg-[#0B0F19] border-r border-white/5 
+        fixed top-0 left-0 bottom-0 z-50 w-64 bg-slate-50 border-r border-slate-100 
         flex flex-col transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         md:translate-x-0
       `}>
         
         {/* Logo Section */}
-        <div className="h-16 flex items-center justify-between px-6 border-b border-white/5 shrink-0">
+        <div className="h-16 flex items-center justify-between px-6 border-b border-slate-100 shrink-0">
           <Link href="/" className="flex items-center gap-3 group" onClick={onClose}>
             <div className="p-1.5 bg-gradient-to-br from-indigo-500 to-fuchsia-500 rounded-lg group-hover:scale-105 transition-transform duration-300 shadow-lg shadow-indigo-500/25">
               <GraduationCap className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">EduLearn</span>
+            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-fuchsia-600">EduLearn</span>
           </Link>
 
           <button 
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl md:hidden"
+            className="p-2 text-slate-600 hover:text-slate-900 hover:bg-white rounded-xl md:hidden"
           >
             <X className="w-5 h-5" />
           </button>
@@ -79,12 +79,12 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 className={`
                   flex items-center gap-3 px-3 py-3 rounded-xl font-medium transition-all duration-200 group
                   ${isActive 
-                    ? 'bg-indigo-500/10 text-indigo-400 shadow-inner' 
-                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    ? 'bg-indigo-50 text-indigo-600 shadow-inner' 
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white'
                   }
                 `}
               >
-                <item.icon className={`w-5 h-5 ${isActive ? 'text-indigo-400' : 'text-slate-500 group-hover:text-slate-300'} transition-colors`} />
+                <item.icon className={`w-5 h-5 ${isActive ? 'text-indigo-600' : 'text-slate-500 group-hover:text-slate-700'} transition-colors`} />
                 {item.name}
               </Link>
             );
@@ -92,7 +92,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         </div>
 
         {/* Footer actions inside sidebar (Mobile mainly) */}
-        <div className="p-4 border-t border-white/5 md:hidden">
+        <div className="p-4 border-t border-slate-100 md:hidden">
           <Link 
             href="/document/upload" 
             onClick={onClose}

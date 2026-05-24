@@ -185,7 +185,7 @@ export default function DocumentUploadForm() {
 
   // --- RENDER ---
   return (
-    <div className="min-h-screen bg-[#0B0F19] relative overflow-hidden py-12 px-4 flex items-center justify-center">
+    <div className="min-h-screen bg-slate-50 relative overflow-hidden py-12 px-4 flex items-center justify-center">
       {/* Background Orbs */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-600/20 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-fuchsia-600/20 blur-[120px] pointer-events-none" />
@@ -193,20 +193,20 @@ export default function DocumentUploadForm() {
       <div className="w-full max-w-2xl flex flex-col gap-6 relative z-10">
         <Link 
           href="/document" 
-          className="w-max inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-medium text-slate-300 shadow-sm transition hover:bg-white/10 hover:text-white backdrop-blur-md"
+          className="w-max inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-md transition hover:bg-slate-100 hover:text-slate-900 backdrop-blur-md"
         >
           <ArrowLeft className="h-4 w-4" />
           <span>Quay lại</span>
         </Link>
 
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl p-8 transition-all hover:bg-white/[0.07]">
-          <h1 className="text-3xl font-bold text-center mb-8 text-white">Tải Lên Tài Liệu</h1>
+        <div className="bg-white backdrop-blur-xl border border-slate-200 rounded-3xl shadow-2xl p-8 transition-all hover:bg-slate-50">
+          <h1 className="text-3xl font-bold text-center mb-8 text-slate-900">Tải Lên Tài Liệu</h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Vùng chọn file */}
-            <label className="flex flex-col items-center justify-center p-10 border-2 border-dashed border-white/20 rounded-2xl bg-[#131A2B]/50 cursor-pointer transition-all duration-300 hover:border-indigo-500/50 hover:bg-indigo-500/5 group shadow-inner">
-              <Upload className="w-12 h-12 text-slate-500 mb-4 group-hover:text-indigo-400 transition-colors" />
-              <span className="text-sm font-medium text-slate-300 group-hover:text-indigo-300 transition-colors">
+            <label className="flex flex-col items-center justify-center p-10 border-2 border-dashed border-white/20 rounded-2xl bg-white0 cursor-pointer transition-all duration-300 hover:border-indigo-500/50 hover:bg-indigo-500/5 group shadow-inner">
+              <Upload className="w-12 h-12 text-slate-500 mb-4 group-hover:text-indigo-600 transition-colors" />
+              <span className="text-sm font-medium text-slate-700 group-hover:text-indigo-700 transition-colors">
                 {file ? file.name : "Nhấp để chọn file (PDF, Docx...)"}
               </span>
               <input
@@ -218,18 +218,18 @@ export default function DocumentUploadForm() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-2">
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">Người tải lên</label>
+                <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider">Người tải lên</label>
                 <input
-                  className="w-full px-4 py-3 bg-[#131A2B]/50 border border-white/10 text-slate-500 rounded-xl cursor-not-allowed shadow-inner"
+                  className="w-full px-4 py-3 bg-white0 border border-slate-200 text-slate-500 rounded-xl cursor-not-allowed shadow-inner"
                   type="text"
                   readOnly
                   value={currentUserEmail || "Chưa đăng nhập"}
                 />
               </div>
               <div className="space-y-2">
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">Group ID</label>
+                <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider">Group ID</label>
                 <input
-                  className="w-full px-4 py-3 bg-[#131A2B] border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all placeholder-slate-600 shadow-inner"
+                  className="w-full px-4 py-3 bg-white border border-slate-200 text-slate-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all placeholder-slate-600 shadow-inner"
                   name="group_id"
                   type="number"
                   placeholder="Bỏ trống nếu không có"
@@ -241,9 +241,9 @@ export default function DocumentUploadForm() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-2">
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">Mã Trường *</label>
+                <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider">Mã Trường *</label>
                 <input
-                  className="w-full px-4 py-3 bg-[#131A2B] border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all placeholder-slate-600 shadow-inner"
+                  className="w-full px-4 py-3 bg-white border border-slate-200 text-slate-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all placeholder-slate-600 shadow-inner"
                   name="university_code"
                   list="university-list"
                   required
@@ -272,9 +272,9 @@ export default function DocumentUploadForm() {
                 </datalist>
               </div>
               <div className="space-y-2">
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">Mã Môn Học *</label>
+                <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider">Mã Môn Học *</label>
                 <input
-                  className="w-full px-4 py-3 bg-[#131A2B] border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all placeholder-slate-600 shadow-inner"
+                  className="w-full px-4 py-3 bg-white border border-slate-200 text-slate-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all placeholder-slate-600 shadow-inner"
                   name="subject_code"
                   list="subject-list"
                   required
@@ -296,11 +296,11 @@ export default function DocumentUploadForm() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-2">
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">
+                <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider">
                   {selectedSubject ? "Tên Môn Học (Đã Tồn Tại)" : "Tên Môn Học Mới *"}
                 </label>
                 <input
-                  className={`w-full px-4 py-3 border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-inner ${selectedSubject ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-[#131A2B] placeholder-slate-600'}`}
+                  className={`w-full px-4 py-3 border border-slate-200 text-slate-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-inner ${selectedSubject ? 'bg-emerald-50 border-emerald-300' : 'bg-white placeholder-slate-600'}`}
                   name="subject_name"
                   required={!selectedSubject}
                   value={formData.subject_name}
@@ -310,18 +310,18 @@ export default function DocumentUploadForm() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">Loại Tài Liệu *</label>
+                <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider">Loại Tài Liệu *</label>
                 <select
-                  className="w-full px-4 py-3 bg-[#131A2B] border border-white/10 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-inner appearance-none"
+                  className="w-full px-4 py-3 bg-white border border-slate-200 text-slate-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-inner appearance-none"
                   name="doc_type"
                   required
                   value={formData.doc_type}
                   onChange={handleInputChange}
                 >
-                  <option value="lecture" className="bg-[#131A2B]">Bài giảng (Lecture)</option>
-                  <option value="exercise" className="bg-[#131A2B]">Bài tập (Exercise)</option>
-                  <option value="exam" className="bg-[#131A2B]">Đề thi (Exam)</option>
-                  <option value="other" className="bg-[#131A2B]">Khác (Other)</option>
+                  <option value="lecture" className="bg-white">Bài giảng (Lecture)</option>
+                  <option value="exercise" className="bg-white">Bài tập (Exercise)</option>
+                  <option value="exam" className="bg-white">Đề thi (Exam)</option>
+                  <option value="other" className="bg-white">Khác (Other)</option>
                 </select>
               </div>
             </div>
@@ -347,22 +347,22 @@ export default function DocumentUploadForm() {
 
           {/* Alerts */}
           {error && (
-            <div className="mt-6 p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-start gap-3">
-              <AlertCircle className="w-6 h-6 text-rose-400 shrink-0 mt-0.5" />
+            <div className="mt-6 p-4 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-3">
+              <AlertCircle className="w-6 h-6 text-rose-600 shrink-0 mt-0.5" />
               <div>
-                <strong className="block text-rose-400 font-semibold mb-1">Lỗi Upload</strong>
+                <strong className="block text-rose-600 font-semibold mb-1">Lỗi Upload</strong>
                 <p className="text-rose-300/80 text-sm">{error}</p>
               </div>
             </div>
           )}
 
           {result && (
-            <div className="mt-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-start gap-3">
-              <CheckCircle className="w-6 h-6 text-emerald-400 shrink-0 mt-0.5" />
+            <div className="mt-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-start gap-3">
+              <CheckCircle className="w-6 h-6 text-emerald-600 shrink-0 mt-0.5" />
               <div>
-                <strong className="block text-emerald-400 font-semibold mb-1">Thành công!</strong>
-                <p className="text-emerald-300/80 text-sm mb-2">{result.message}</p>
-                <div className="inline-flex px-3 py-1 bg-emerald-500/20 text-emerald-300 rounded-lg text-xs font-mono">
+                <strong className="block text-emerald-600 font-semibold mb-1">Thành công!</strong>
+                <p className="text-emerald-700/80 text-sm mb-2">{result.message}</p>
+                <div className="inline-flex px-3 py-1 bg-emerald-500/20 text-emerald-700 rounded-lg text-xs font-mono">
                   Mã tài liệu: #{result.document_id}
                 </div>
               </div>
