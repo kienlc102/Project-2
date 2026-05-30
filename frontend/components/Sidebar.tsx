@@ -10,7 +10,8 @@ import {
   Layers,
   GraduationCap,
   X,
-  Upload
+  Upload,
+  MessageSquare
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -27,6 +28,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     { name: 'Môn học', href: '/subject', icon: BookOpen },
     { name: 'Flashcards', href: '/flashcards', icon: Layers },
     { name: 'Trắc nghiệm', href: '/quizzes', icon: ClipboardList },
+    { name: 'Diễn đàn', href: '/forum', icon: MessageSquare },
   ];
 
   return (

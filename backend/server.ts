@@ -5,6 +5,7 @@ import path from 'path';
 import authRoutes from './routes/auth';
 import flashcardRoutes from './routes/flashcards';
 import quizRoutes from './routes/quizzes';
+import forumRoutes, { initForumTables } from './routes/forum';
 import { query } from './db';
 
 dotenv.config();
@@ -37,6 +38,9 @@ app.use('/api/flashcards', flashcardRoutes);
 // Quiz routes
 app.use('/api/quizzes', quizRoutes);
 
+// Forum routes
+app.use('/api/forum', forumRoutes);
+
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({
@@ -55,8 +59,16 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 });
 
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`✅ Server đang chạy tại http://localhost:${PORT}`);
+
+  // Init forum tables
+  try {
+    await initForumTables();
+    console.log('✅ Forum tables initialized');
+  } catch (err) {
+    console.error('Forum table init error:', err);
+  }
 
   // Cron job: Xóa tài khoản chưa xác thực email sau 24 giờ (chạy mỗi 1 giờ)
   setInterval(async () => {

@@ -14,7 +14,8 @@ import {
   Shield,
   Globe,
   User,
-  GraduationCap
+  GraduationCap,
+  MessageSquare
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -75,7 +76,7 @@ export default function HomePage() {
 
       {/* Main Features Grid */}
       <section className="max-w-7xl mx-auto px-6 pb-24 relative z-10">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
           {[
             {
               href: '/flashcards',
@@ -108,6 +109,14 @@ export default function HomePage() {
               desc: 'Tham gia không gian tri thức đa dạng với hàng ngàn môn học.',
               color: 'from-rose-500 to-orange-500',
               glow: 'group-hover:shadow-rose-500/20'
+            },
+            {
+              href: '/forum',
+              icon: MessageSquare,
+              title: 'Diễn đàn',
+              desc: 'Đặt câu hỏi, thảo luận, chia sẻ kiến thức cùng cộng đồng.',
+              color: 'from-cyan-500 to-teal-500',
+              glow: 'group-hover:shadow-cyan-500/20'
             }
           ].map((item, idx) => (
             <Link
