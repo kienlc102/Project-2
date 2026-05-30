@@ -252,7 +252,7 @@ export default function ForumList({ initialTag = '' }: { initialTag?: string }) 
                         <p className="text-xs font-semibold text-slate-800 truncate group-hover:text-cyan-700 transition">
                           {user.full_name || user.email}
                         </p>
-                        <p className="text-xs text-slate-400">{user.total_upvotes} upvotes · {user.post_count} bài</p>
+                        <p className="text-xs text-slate-400">{user.reputation_score} điểm · {user.post_count} bài</p>
                       </div>
                     </Link>
                   ))}

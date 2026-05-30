@@ -184,7 +184,7 @@ export interface TopUser {
   id: number;
   full_name: string;
   email: string;
-  total_upvotes: number;
+  reputation_score: number;
   post_count: number;
 }
 

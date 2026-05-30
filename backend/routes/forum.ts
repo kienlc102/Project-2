@@ -179,9 +179,9 @@ router.get('/posts', async (req: AuthRequest, res: Response) => {
 
     const conditions: string[] = [];
     if (search) {
-      conditions.push(`(fp.title ILIKE $${paramIdx} OR fp.content ILIKE $${paramIdx} OR array_to_string(fp.tags, ' ') ILIKE $${paramIdx} OR EXISTS (SELECT 1 FROM forum_comments fc2 WHERE fc2.post_id = fp.id AND fc2.content ILIKE $${paramIdx}))`);
-      params.push(`%${search}%`);
-      paramIdx++;
+      conditions.push(`(fp.title ILIKE $${paramIdx} OR fp.content ILIKE $${paramIdx + 1} OR array_to_string(fp.tags, ' ') ILIKE $${paramIdx + 2} OR fc_search.content ILIKE $${paramIdx + 3})`);
+      params.push(`%${search}%`, `%${search}%`, `%${search}%`, `%${search}%`);
+      paramIdx += 4;
     }
     if (tag) {
       conditions.push(`$${paramIdx} = ANY(fp.tags)`);
@@ -193,18 +193,21 @@ router.get('/posts', async (req: AuthRequest, res: Response) => {
     }
 
     const countResult = await query(
-      `SELECT COUNT(*) FROM forum_posts fp ${whereClause}`,
+      `SELECT COUNT(DISTINCT fp.id) FROM forum_posts fp
+       LEFT JOIN forum_comments fc_search ON fc_search.post_id = fp.id
+       ${whereClause}`,
       params
     );
     const total = parseInt(countResult.rows[0].count);
 
     const postsResult = await query(
-      `SELECT fp.*, u.full_name, u.email,
+      `SELECT DISTINCT ON (fp.id, fp.created_at) fp.*, u.full_name, u.email,
         COALESCE(fp.upvotes, 0) - COALESCE(fp.downvotes, 0) as score
        FROM forum_posts fp
        LEFT JOIN public.users u ON u.id = fp.user_id
+       LEFT JOIN forum_comments fc_search ON fc_search.post_id = fp.id
        ${whereClause}
-       ORDER BY fp.created_at DESC
+       ORDER BY fp.created_at DESC, fp.id DESC
        LIMIT $${paramIdx} OFFSET $${paramIdx + 1}`,
       [...params, limit, offset]
     );
@@ -744,12 +747,12 @@ router.get('/top-users', async (_req: AuthRequest, res: Response) => {
   try {
     const result = await query(
       `SELECT u.id, u.full_name, u.email,
-        COALESCE(SUM(fp.upvotes), 0)::int as total_upvotes,
+        COALESCE(SUM(fp.upvotes - fp.downvotes), 0)::int as reputation_score,
         COUNT(fp.id)::int as post_count
        FROM public.users u
        JOIN forum_posts fp ON fp.user_id = u.id
        GROUP BY u.id, u.full_name, u.email
-       ORDER BY total_upvotes DESC, post_count DESC
+       ORDER BY reputation_score DESC, post_count DESC
        LIMIT 5`
     );
     res.json({ success: true, data: { users: result.rows } });
@@ -789,7 +792,7 @@ router.get('/users/:userId/posts', async (req: AuthRequest, res: Response) => {
     );
 
     const statsResult = await query(
-      `SELECT COALESCE(SUM(upvotes), 0)::int as total_upvotes, COUNT(*)::int as post_count
+      `SELECT COALESCE(SUM(upvotes - downvotes), 0)::int as reputation_score, COUNT(*)::int as post_count
        FROM forum_posts WHERE user_id = $1`,
       [userId]
     );

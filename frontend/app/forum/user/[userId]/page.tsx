@@ -11,7 +11,7 @@ import {
 import { fetchUserPosts, ForumPost, TopUser, timeAgo } from '@/lib/forum';
 
 interface UserStats {
-  total_upvotes: number;
+  reputation_score: number;
   post_count: number;
 }
 
@@ -85,8 +85,8 @@ export default function ForumUserPage() {
                   <div className="flex flex-wrap gap-4 mt-4">
                     <div className="flex items-center gap-2 text-sm text-slate-600 bg-cyan-50 border border-cyan-100 px-3 py-1.5 rounded-xl">
                       <Trophy className="w-4 h-4 text-yellow-500" />
-                      <span className="font-semibold text-slate-800">{stats?.total_upvotes ?? 0}</span>
-                      <span className="text-slate-500">upvotes</span>
+                      <span className="font-semibold text-slate-800">{stats?.reputation_score ?? 0}</span>
+                      <span className="text-slate-500">điểm</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl">
                       <FileText className="w-4 h-4 text-cyan-500" />

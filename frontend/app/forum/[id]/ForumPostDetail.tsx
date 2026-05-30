@@ -5,12 +5,13 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   ArrowLeft, MessageSquare, Edit3, Trash2, Reply, ChevronDown,
-  ChevronUp as ChevronUpIcon, Paperclip, Clock, User, Loader2, AlertCircle, Send
+  ChevronUp as ChevronUpIcon, Paperclip, Clock, User, Loader2, AlertCircle, Send,
+  Download, ExternalLink
 } from 'lucide-react';
 import {
   fetchPost, fetchComments, createComment, editComment, deleteComment,
   votePost, voteComment, deletePost,
-  ForumPost, ForumComment, timeAgo, getFileIcon, formatFileSize
+  ForumPost, ForumComment, Attachment, timeAgo, getFileIcon, formatFileSize
 } from '@/lib/forum';
 import { getToken } from '@/lib/auth';
 import MathRenderer from '@/components/MathRenderer';
@@ -274,6 +275,25 @@ export default function ForumPostDetail() {
     }
   };
 
+  const handleDownload = async (att: Attachment) => {
+    try {
+      const apiBase = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
+      const res = await fetch(`${apiBase}${att.url}`);
+      if (!res.ok) throw new Error('Download failed');
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = att.filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    } catch {
+      alert('Không thể tải file. Vui lòng thử lại.');
+    }
+  };
+
   const handleDeletePost = async () => {
     if (!token || !post || !confirm('Xóa bài viết này? Hành động không thể hoàn tác.')) return;
     const res = await deletePost(token, post.id);
@@ -389,21 +409,39 @@ export default function ForumPostDetail() {
                       <Paperclip className="w-4 h-4 text-cyan-500" /> Tệp đính kèm ({attachments.length})
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {attachments.map((att, idx) => (
-                        <a
-                          key={idx}
-                          href={`http://localhost:5000${att.url}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl hover:bg-cyan-50 hover:border-cyan-300 transition group"
-                        >
-                          <span className="text-xl">{getFileIcon(att.mimetype, att.filename)}</span>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-slate-700 truncate group-hover:text-cyan-700">{att.filename}</p>
-                            <p className="text-xs text-slate-400">{formatFileSize(att.size)}</p>
+                      {attachments.map((att, idx) => {
+                        const apiBase = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
+                        return (
+                          <div
+                            key={idx}
+                            className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl hover:bg-cyan-50 hover:border-cyan-300 transition group"
+                          >
+                            <span className="text-xl shrink-0">{getFileIcon(att.mimetype, att.filename)}</span>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-slate-700 truncate group-hover:text-cyan-700">{att.filename}</p>
+                              <p className="text-xs text-slate-400">{formatFileSize(att.size)}</p>
+                            </div>
+                            <div className="flex items-center gap-1 shrink-0">
+                              <a
+                                href={`${apiBase}${att.url}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title="Mở trong tab mới"
+                                className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-600 hover:bg-cyan-100 transition"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </a>
+                              <button
+                                onClick={() => handleDownload(att)}
+                                title="Tải về"
+                                className="p-1.5 rounded-lg text-slate-400 hover:text-teal-600 hover:bg-teal-100 transition"
+                              >
+                                <Download className="w-4 h-4" />
+                              </button>
+                            </div>
                           </div>
-                        </a>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 )}
