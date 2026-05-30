@@ -1,0 +1,22 @@
+/OCR
+
+# dependencies
+node_modules/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Environment
+.env
+.env.*
+.venv/
+venv/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
