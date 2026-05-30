@@ -3,6 +3,10 @@
 # dependencies
 node_modules/
 
+# Uploaded files (user content, not source code)
+backend/uploads/
+fastapi-backend/uploads/
+
 # Python cache
 __pycache__/
 *.py[cod]

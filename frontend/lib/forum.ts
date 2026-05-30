@@ -178,6 +178,26 @@ export const voteComment = async (token: string, commentId: number, voteType: 'u
   return res.json();
 };
 
+// ────────── Reputation ──────────
+
+export interface TopUser {
+  id: number;
+  full_name: string;
+  email: string;
+  total_upvotes: number;
+  post_count: number;
+}
+
+export const fetchTopUsers = async () => {
+  const res = await fetch(`${API_URL}/forum/top-users`);
+  return res.json();
+};
+
+export const fetchUserPosts = async (userId: number) => {
+  const res = await fetch(`${API_URL}/forum/users/${userId}/posts`);
+  return res.json();
+};
+
 // ────────── Utils ──────────
 
 export const getFileIcon = (mimetype: string, filename: string): string => {

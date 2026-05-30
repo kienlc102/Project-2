@@ -2,14 +2,16 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   MessageSquare, ChevronUp, Search, Plus, Tag, Clock,
-  ArrowLeft, Flame, Loader2, AlertCircle
+  ArrowLeft, Flame, Loader2, AlertCircle, Trophy
 } from 'lucide-react';
-import { fetchPosts, ForumPost, PaginationInfo, timeAgo } from '@/lib/forum';
+import { fetchPosts, fetchTopUsers, ForumPost, PaginationInfo, TopUser, timeAgo } from '@/lib/forum';
 import { getToken } from '@/lib/auth';
 
-export default function ForumList() {
+export default function ForumList({ initialTag = '' }: { initialTag?: string }) {
+  const router = useRouter();
   const [posts, setPosts] = useState<ForumPost[]>([]);
   const [pagination, setPagination] = useState<PaginationInfo | null>(null);
   const [loading, setLoading] = useState(true);
@@ -17,7 +19,8 @@ export default function ForumList() {
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
   const [page, setPage] = useState(1);
-  const [activeTag, setActiveTag] = useState('');
+  const [activeTag] = useState(initialTag);
+  const [topUsers, setTopUsers] = useState<TopUser[]>([]);
   const token = typeof window !== 'undefined' ? getToken() : null;
 
   const loadPosts = useCallback(async () => {
@@ -40,6 +43,12 @@ export default function ForumList() {
 
   useEffect(() => { loadPosts(); }, [loadPosts]);
 
+  useEffect(() => {
+    fetchTopUsers().then(res => {
+      if (res.success) setTopUsers(res.data.users);
+    }).catch(() => {});
+  }, []);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setSearch(searchInput.trim());
@@ -61,12 +70,16 @@ export default function ForumList() {
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-sm uppercase tracking-[0.24em] text-cyan-600 font-semibold">Cộng đồng</p>
-            <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">Diễn đàn</h1>
-            <p className="mt-1.5 text-sm text-slate-600">Đặt câu hỏi, chia sẻ kiến thức, thảo luận cùng cộng đồng.</p>
+            <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
+              {activeTag ? `#${activeTag}` : 'Diễn đàn'}
+            </h1>
+            <p className="mt-1.5 text-sm text-slate-600">
+              {activeTag ? `Các bài viết được gắn tag "${activeTag}"` : 'Đặt câu hỏi, chia sẻ kiến thức, thảo luận cùng cộng đồng.'}
+            </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <Link href="/" className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-100 rounded-xl border border-slate-200 transition-all">
-              <ArrowLeft className="w-4 h-4" /> Quay lại
+            <Link href={activeTag ? '/forum' : '/'} className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-100 rounded-xl border border-slate-200 transition-all">
+              <ArrowLeft className="w-4 h-4" /> {activeTag ? 'Tất cả bài viết' : 'Quay lại'}
             </Link>
             {token && (
               <Link href="/forum/create" className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-400 hover:to-teal-400 text-white rounded-xl text-sm font-bold shadow-lg shadow-cyan-500/20 transition">
@@ -85,7 +98,7 @@ export default function ForumList() {
               <input
                 value={searchInput}
                 onChange={e => setSearchInput(e.target.value)}
-                placeholder="Tìm kiếm bài viết..."
+                placeholder="Tìm kiếm theo tiêu đề, nội dung, tag, bình luận..."
                 className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 shadow-sm"
               />
             </form>
@@ -95,7 +108,7 @@ export default function ForumList() {
               <div className="flex items-center gap-2 px-5 py-4 border-b border-slate-100 bg-slate-50/60">
                 <Flame className="w-4 h-4 text-cyan-500" />
                 <h2 className="text-sm font-bold text-slate-700">
-                  {search ? `Kết quả cho "${search}"` : activeTag ? `#${activeTag}` : 'Bài viết mới nhất'}
+                  {search ? `Kết quả cho "${search}"` : 'Bài viết mới nhất'}
                 </h2>
                 {pagination && (
                   <span className="ml-auto text-xs text-slate-400">{pagination.total} bài viết</span>
@@ -143,7 +156,7 @@ export default function ForumList() {
                             {post.tags.slice(0, 4).map(tag => (
                               <button
                                 key={tag}
-                                onClick={e => { e.preventDefault(); setActiveTag(tag === activeTag ? '' : tag); setPage(1); }}
+                                onClick={e => { e.preventDefault(); router.push(`/forum/tag/${encodeURIComponent(tag)}`); }}
                                 className={`text-xs px-2 py-0.5 rounded-full border font-medium transition ${
                                   tag === activeTag ? 'bg-cyan-500 border-cyan-500 text-white' : 'bg-cyan-50 border-cyan-200 text-cyan-700 hover:bg-cyan-100'
                                 }`}
@@ -205,7 +218,7 @@ export default function ForumList() {
                   {allTags.map(tag => (
                     <button
                       key={tag}
-                      onClick={() => { setActiveTag(tag === activeTag ? '' : tag); setPage(1); }}
+                      onClick={() => router.push(`/forum/tag/${encodeURIComponent(tag)}`)}
                       className={`text-xs px-2.5 py-1 rounded-full border font-medium transition ${
                         tag === activeTag ? 'bg-cyan-500 border-cyan-500 text-white' : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-cyan-50 hover:border-cyan-300 hover:text-cyan-700'
                       }`}
@@ -214,14 +227,36 @@ export default function ForumList() {
                     </button>
                   ))}
                 </div>
-                {activeTag && (
-                  <button
-                    onClick={() => { setActiveTag(''); setPage(1); }}
-                    className="mt-3 text-xs text-slate-400 hover:text-slate-600 transition"
-                  >
-                    × Xóa bộ lọc
-                  </button>
-                )}
+              </div>
+            )}
+
+            {/* Reputation - Top 5 Users */}
+            {topUsers.length > 0 && (
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+                <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                  <Trophy className="w-3.5 h-3.5 text-yellow-500" /> Bảng xếp hạng
+                </h3>
+                <div className="space-y-1">
+                  {topUsers.map((user, idx) => (
+                    <Link
+                      href={`/forum/user/${user.id}`}
+                      key={user.id}
+                      className="flex items-center gap-2 py-1.5 px-1.5 rounded-lg hover:bg-slate-50 transition group"
+                    >
+                      <span className={`text-xs font-bold w-5 text-center shrink-0 ${
+                        idx === 0 ? 'text-yellow-500' : idx === 1 ? 'text-slate-400' : idx === 2 ? 'text-amber-600' : 'text-slate-300'
+                      }`}>
+                        {idx + 1}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-slate-800 truncate group-hover:text-cyan-700 transition">
+                          {user.full_name || user.email}
+                        </p>
+                        <p className="text-xs text-slate-400">{user.total_upvotes} upvotes · {user.post_count} bài</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
               </div>
             )}
 

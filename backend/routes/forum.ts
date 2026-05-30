@@ -179,7 +179,7 @@ router.get('/posts', async (req: AuthRequest, res: Response) => {
 
     const conditions: string[] = [];
     if (search) {
-      conditions.push(`(fp.title ILIKE $${paramIdx} OR fp.content ILIKE $${paramIdx})`);
+      conditions.push(`(fp.title ILIKE $${paramIdx} OR fp.content ILIKE $${paramIdx} OR array_to_string(fp.tags, ' ') ILIKE $${paramIdx} OR EXISTS (SELECT 1 FROM forum_comments fc2 WHERE fc2.post_id = fp.id AND fc2.content ILIKE $${paramIdx}))`);
       params.push(`%${search}%`);
       paramIdx++;
     }
@@ -733,6 +733,78 @@ router.post('/comments/:id/vote', authMiddleware, async (req: AuthRequest, res: 
     res.status(500).json({ success: false, message: 'Lỗi server' });
   } finally {
     client.release();
+  }
+});
+
+// ============================================
+// GET TOP USERS (Reputation)
+// GET /api/forum/top-users
+// ============================================
+router.get('/top-users', async (_req: AuthRequest, res: Response) => {
+  try {
+    const result = await query(
+      `SELECT u.id, u.full_name, u.email,
+        COALESCE(SUM(fp.upvotes), 0)::int as total_upvotes,
+        COUNT(fp.id)::int as post_count
+       FROM public.users u
+       JOIN forum_posts fp ON fp.user_id = u.id
+       GROUP BY u.id, u.full_name, u.email
+       ORDER BY total_upvotes DESC, post_count DESC
+       LIMIT 5`
+    );
+    res.json({ success: true, data: { users: result.rows } });
+  } catch (error) {
+    console.error('GET /forum/top-users error:', error);
+    res.status(500).json({ success: false, message: 'Lỗi server' });
+  }
+});
+
+// ============================================
+// GET USER POSTS
+// GET /api/forum/users/:userId/posts
+// ============================================
+router.get('/users/:userId/posts', async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = parseInt(req.params.userId);
+    if (isNaN(userId)) {
+      return res.status(400).json({ success: false, message: 'ID người dùng không hợp lệ' });
+    }
+
+    const userResult = await query(
+      `SELECT id, full_name, email FROM public.users WHERE id = $1`,
+      [userId]
+    );
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Người dùng không tồn tại' });
+    }
+
+    const postsResult = await query(
+      `SELECT fp.*, u.full_name, u.email,
+        fp.upvotes - fp.downvotes as score
+       FROM forum_posts fp
+       LEFT JOIN public.users u ON u.id = fp.user_id
+       WHERE fp.user_id = $1
+       ORDER BY fp.created_at DESC`,
+      [userId]
+    );
+
+    const statsResult = await query(
+      `SELECT COALESCE(SUM(upvotes), 0)::int as total_upvotes, COUNT(*)::int as post_count
+       FROM forum_posts WHERE user_id = $1`,
+      [userId]
+    );
+
+    res.json({
+      success: true,
+      data: {
+        user: userResult.rows[0],
+        posts: postsResult.rows,
+        stats: statsResult.rows[0],
+      },
+    });
+  } catch (error) {
+    console.error('GET /forum/users/:userId/posts error:', error);
+    res.status(500).json({ success: false, message: 'Lỗi server' });
   }
 });
 
