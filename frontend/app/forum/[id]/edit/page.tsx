@@ -64,9 +64,9 @@ export default function ForumEditPage() {
   if (!post) {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-4">
-        <AlertCircle className="w-12 h-12 text-rose-500" />
-        <p className="text-slate-700 font-semibold">{error || 'Bài viết không tồn tại'}</p>
-        <Link href="/forum" className="text-cyan-600 hover:underline text-sm">← Quay lại diễn đàn</Link>
+        <AlertCircle className="w-12 h-12 text-rose-700" />
+        <p className="text-slate-900 font-semibold">{error || 'Bài viết không tồn tại'}</p>
+        <Link href="/forum" className="text-cyan-800 hover:underline text-sm">← Quay lại diễn đàn</Link>
       </div>
     );
   }
@@ -85,13 +85,13 @@ export default function ForumEditPage() {
             </div>
             <h1 className="text-xl font-bold text-slate-900">Chỉnh sửa bài viết</h1>
           </div>
-          <Link href={`/forum/${postId}`} className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-100 rounded-xl border border-slate-200 transition-all self-start">
+          <Link href={`/forum/${postId}`} className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-slate-900 hover:text-slate-900 bg-white hover:bg-slate-100 rounded-xl border border-slate-200 transition-all self-start">
             <ArrowLeft className="w-4 h-4" /> Quay lại bài viết
           </Link>
         </div>
 
         {error && (
-          <div className="mb-5 p-4 bg-rose-50 border border-rose-200 rounded-xl text-sm text-rose-600">
+          <div className="mb-5 p-4 bg-rose-50 border border-rose-200 rounded-xl text-sm text-rose-700">
             {error}
           </div>
         )}

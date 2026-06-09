@@ -153,7 +153,7 @@ export default function ForumEditor({
           onChange={e => setTitle(e.target.value)}
           placeholder="Nhập tiêu đề bài viết..."
           required
-          className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-base font-medium"
+          className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-black placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-base font-medium"
         />
       </div>
 
@@ -216,11 +216,11 @@ export default function ForumEditor({
         )}
 
         {preview ? (
-          <div className="min-h-[200px] p-4 border border-slate-200 rounded-xl bg-white">
+          <div className="min-h-[200px] p-4 border border-slate-200 rounded-xl bg-white text-black">
             {content ? (
               <MathRenderer content={content} />
             ) : (
-              <p className="text-slate-400 italic">Chưa có nội dung...</p>
+              <p className="text-slate-500 italic">Chưa có nội dung...</p>
             )}
           </div>
         ) : (
@@ -231,7 +231,7 @@ export default function ForumEditor({
             rows={10}
             required
             placeholder={`Viết nội dung bài viết...\n\nHỗ trợ LaTeX:\n• Inline: $x^2 + y^2 = z^2$\n• Block:\n$$\n\\int_0^\\infty e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}\n$$`}
-            className="w-full px-4 py-3 border border-slate-200 rounded-b-xl bg-white text-slate-900 placeholder:text-slate-400 placeholder:font-sans focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent font-mono text-sm resize-y min-h-[200px]"
+            className="w-full px-4 py-3 border border-slate-200 rounded-b-xl bg-white text-black placeholder:text-slate-500 placeholder:font-sans focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent font-mono text-sm resize-y min-h-[200px]"
           />
         )}
 
@@ -254,7 +254,7 @@ export default function ForumEditor({
               onChange={e => setTagInput(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTag(); } }}
               placeholder="toán học, vật lý, lập trình..."
-              className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm text-black placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
             />
           </div>
           <button

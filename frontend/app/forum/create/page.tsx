@@ -51,17 +51,17 @@ export default function ForumCreatePage() {
             </div>
             <div>
               <h1 className="text-xl font-bold text-slate-900">Đăng bài mới</h1>
-              <p className="text-sm text-slate-500 mt-0.5">Chia sẻ câu hỏi hoặc kiến thức với cộng đồng</p>
+              <p className="text-sm text-slate-900 mt-0.5">Chia sẻ câu hỏi hoặc kiến thức với cộng đồng</p>
             </div>
           </div>
-          <Link href="/forum" className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-100 rounded-xl border border-slate-200 transition-all self-start">
+          <Link href="/forum" className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-slate-900 hover:text-slate-900 bg-white hover:bg-slate-100 rounded-xl border border-slate-200 transition-all self-start">
             <ArrowLeft className="w-4 h-4" /> Diễn đàn
           </Link>
         </div>
 
         {/* Error */}
         {error && (
-          <div className="mb-5 p-4 bg-rose-50 border border-rose-200 rounded-xl text-sm text-rose-600">
+          <div className="mb-5 p-4 bg-rose-50 border border-rose-200 rounded-xl text-sm text-rose-700">
             {error}
           </div>
         )}
