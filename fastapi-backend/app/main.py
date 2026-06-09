@@ -12,6 +12,7 @@ from app.models.group import Group # Thay đổi tên file tương ứng nếu c
 from app.models.document import Document, DocumentChunk, DocumentMetadata
 from app.models.university import University
 from app.models.subject import Subject
+from app.models.flashcard import FlashcardSet, Flashcard
 # Lệnh này sẽ tạo các bảng trong DB (Trong thực tế thường dùng Alembic để migrate DB)
 Base.metadata.create_all(bind=engine)
 

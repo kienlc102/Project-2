@@ -1,1 +1,5 @@
-export { default } from '@/components/QuizDetailPage';
+import TakeQuiz from './TakeQuiz';
+
+export default function QuizPage() {
+  return <TakeQuiz />;
+}

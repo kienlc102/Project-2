@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
-import { uploadDocument, getUniversities, getSubjects, generateAIFromDocument } from "@/lib/documents";
+import { uploadDocument, getUniversities, getSubjects } from "@/lib/documents";
 import { getProfile, getToken } from "@/lib/auth";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Upload, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 
 // --- INTERFACES ---
 interface UploadResponse {
@@ -12,10 +12,6 @@ interface UploadResponse {
   document_id?: number;
   upload_status: boolean;
   detail?: string;
-  ai_generated?: {
-    flashcard_set_id: number | null;
-    quiz_id: number | null;
-  } | null;
 }
 
 export default function DocumentUploadForm() {
@@ -43,30 +39,6 @@ export default function DocumentUploadForm() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<UploadResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [aiLoading, setAiLoading] = useState(false);
-
-  const handleRetryAI = async () => {
-    if (!result?.document_id) return;
-    setAiLoading(true);
-    try {
-      const res = await generateAIFromDocument(String(result.document_id));
-      if (res.ok) {
-        setResult({
-          ...result,
-          ai_generated: {
-            flashcard_set_id: res.data.flashcard_set_id,
-            quiz_id: res.data.quiz_id,
-          },
-        });
-      } else {
-        setError(res.data.error || res.data.detail || "AI vẫn đang bận, thử lại sau.");
-      }
-    } catch {
-      setError("Không thể kết nối đến Server.");
-    } finally {
-      setAiLoading(false);
-    }
-  };
 
   // --- HANDLERS ---
   const handleInputChange = (
@@ -203,28 +175,7 @@ export default function DocumentUploadForm() {
         throw new Error(response.data.detail || "Đã xảy ra lỗi khi upload");
       }
 
-      // Show upload result first, then auto-trigger AI generation
       setResult(response.data);
-
-      if (response.data.document_id) {
-        setAiLoading(true);
-        try {
-          const aiRes = await generateAIFromDocument(String(response.data.document_id));
-          if (aiRes.ok) {
-            setResult((prev: any) => ({
-              ...prev,
-              ai_generated: {
-                flashcard_set_id: aiRes.data.flashcard_set_id,
-                quiz_id: aiRes.data.quiz_id,
-              },
-            }));
-          }
-        } catch {
-          // AI generation failed silently — user can retry manually
-        } finally {
-          setAiLoading(false);
-        }
-      }
     } catch (err: any) {
       setError(err.message || "Không thể kết nối đến Server");
     } finally {
@@ -232,241 +183,53 @@ export default function DocumentUploadForm() {
     }
   };
 
-  // --- CSS THUẦN (Nhúng trực tiếp) ---
-  const rawCSS = `
-    .upload-wrapper {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: #f3f4f6;
-      padding: 20px;
-      font-family: system-ui, -apple-system, sans-serif;
-    }
-    .upload-layout {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      position: relative;
-      width: 100%;
-      max-width: 600px;
-    }
-    .upload-back-button {
-      position: absolute;
-      right: 100%;
-      margin-right: 20px;
-      top: 0;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 14px;
-      font-weight: 500;
-      color: #4b5563;
-      text-decoration: none;
-      padding: 8px 16px;
-      background-color: #ffffff;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-      transition: all 0.2s ease-in-out;
-    }
-    .upload-back-button:hover {
-      color: #1d4ed8;
-      border-color: #a5b4fc;
-      background-color: #eff6ff;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-    }
-    /* Responsive: Trên màn hình nhỏ, xếp nút lên trên form */
-    @media (max-width: 960px) {
-      .upload-layout {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-      }
-      .upload-back-button {
-        position: static;
-        width: fit-content;
-        margin-right: 0;
-      }
-    }
-    .upload-container {
-      width: 100%;
-      background-color: #ffffff;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-      box-sizing: border-box;
-    }
-    .upload-title {
-      margin-top: 0;
-      margin-bottom: 24px;
-      font-size: 24px;
-      color: #111827;
-      text-align: center;
-    }
-    .upload-form {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-    .upload-dropzone {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 20px;
-      border: 2px dashed #d1d5db;
-      border-radius: 8px;
-      background-color: #f9fafb;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .upload-dropzone:hover {
-      border-color: #3b82f6;
-      background-color: #eff6ff;
-    }
-    .upload-dropzone svg {
-      width: 40px;
-      height: 40px;
-      fill: #9ca3af;
-      margin-bottom: 12px;
-    }
-    .upload-dropzone span {
-      font-size: 14px;
-      font-weight: 500;
-      color: #4b5563;
-      text-align: center;
-    }
-    .upload-hidden-input {
-      display: none;
-    }
-    .upload-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-    @media (max-width: 500px) {
-      .upload-grid { grid-template-columns: 1fr; }
-    }
-    .upload-input-group {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .upload-label {
-      font-size: 12px;
-      font-weight: 600;
-      color: #6b7280;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .upload-input, .upload-select {
-      width: 100%;
-      padding: 10px 14px;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.2s;
-      box-sizing: border-box;
-      color: #111827;
-      background-color: #fff;
-    }
-    .upload-input:focus, .upload-select:focus {
-      border-color: #3b82f6;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
-    .upload-button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      width: 100%;
-      padding: 14px;
-      background-color: #2563eb;
-      color: #ffffff;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.2s;
-      margin-top: 10px;
-    }
-    .upload-button:hover:not(:disabled) {
-      background-color: #1d4ed8;
-    }
-    .upload-button:disabled {
-      background-color: #93c5fd;
-      cursor: not-allowed;
-    }
-    .upload-spinner {
-      width: 20px;
-      height: 20px;
-      border: 3px solid rgba(255,255,255,0.3);
-      border-radius: 50%;
-      border-top-color: #fff;
-      animation: upload-spin 1s ease-in-out infinite;
-    }
-    @keyframes upload-spin {
-      to { transform: rotate(360deg); }
-    }
-    .upload-alert {
-      margin-top: 24px;
-      padding: 16px;
-      border-radius: 8px;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-    .upload-alert strong { display: block; margin-bottom: 4px; font-size: 16px; }
-    .upload-alert.error { background-color: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
-    .upload-alert.success { background-color: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
-  `;
-
   // --- RENDER ---
   return (
-    <div className="upload-wrapper">
-      {/* Inject CSS vào DOM */}
-      <style dangerouslySetInnerHTML={{ __html: rawCSS }} />
+    <div className="min-h-screen bg-slate-50 relative overflow-hidden py-12 px-4 flex items-center justify-center">
+      {/* Background Orbs */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-600/20 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-fuchsia-600/20 blur-[120px] pointer-events-none" />
 
-      <div className="upload-layout" >
-        <Link href="/document" className="upload-back-button" style={{width: 120}}>
-          <ArrowLeft size={16} />
+      <div className="w-full max-w-2xl flex flex-col gap-6 relative z-10">
+        <Link
+          href="/document"
+          className="w-max inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-md transition hover:bg-slate-100 hover:text-slate-900 backdrop-blur-md"
+        >
+          <ArrowLeft className="h-4 w-4" />
           <span>Quay lại</span>
         </Link>
 
-        <div className="upload-container">
-          <h1 className="upload-title">Test API Upload</h1>
+        <div className="bg-white backdrop-blur-xl border border-slate-200 rounded-3xl shadow-2xl p-8 transition-all hover:bg-slate-50">
+          <h1 className="text-3xl font-bold text-center mb-8 text-slate-900">Tải Lên Tài Liệu</h1>
 
-          <form onSubmit={handleSubmit} className="upload-form">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Vùng chọn file */}
-            <label className="upload-dropzone">
-              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11zM8 15.01l1.41 1.41L11 14.84V19h2v-4.16l1.59 1.59L16 15.01 12.01 11 8 15.01z" />
-              </svg>
-              <span>{file ? file.name : "Nhấp để chọn file (PDF, Docx...)"}</span>
+            <label className="flex flex-col items-center justify-center p-10 border-2 border-dashed border-white/20 rounded-2xl bg-white0 cursor-pointer transition-all duration-300 hover:border-indigo-500/50 hover:bg-indigo-500/5 group shadow-inner">
+              <Upload className="w-12 h-12 text-slate-500 mb-4 group-hover:text-indigo-600 transition-colors" />
+              <span className="text-sm font-medium text-slate-700 group-hover:text-indigo-700 transition-colors">
+                {file ? file.name : "Nhấp để chọn file (PDF, Docx...)"}
+              </span>
               <input
                 type="file"
-                className="upload-hidden-input"
+                className="hidden"
                 onChange={handleFileChange}
               />
             </label>
 
-            {/* Hàng 1 */}
-            <div className="upload-grid">
-              <div className="upload-input-group">
-                <label className="upload-label">Người tải lên</label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider">Người tải lên</label>
                 <input
-                  className="upload-input"
+                  className="w-full px-4 py-3 bg-white0 border border-slate-200 text-slate-500 rounded-xl cursor-not-allowed shadow-inner"
                   type="text"
                   readOnly
                   value={currentUserEmail || "Chưa đăng nhập"}
                 />
               </div>
-              <div className="upload-input-group">
-                <label className="upload-label">Group ID</label>
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider">Group ID</label>
                 <input
-                  className="upload-input"
+                  className="w-full px-4 py-3 bg-white border border-slate-200 text-slate-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all placeholder-slate-600 shadow-inner"
                   name="group_id"
                   type="number"
                   placeholder="Bỏ trống nếu không có"
@@ -476,12 +239,11 @@ export default function DocumentUploadForm() {
               </div>
             </div>
 
-            {/* Hàng 2 */}
-            <div className="upload-grid">
-              <div className="upload-input-group">
-                <label className="upload-label">University Code *</label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider">Mã Trường *</label>
                 <input
-                  className="upload-input"
+                  className="w-full px-4 py-3 bg-white border border-slate-200 text-slate-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all placeholder-slate-600 shadow-inner"
                   name="university_code"
                   list="university-list"
                   required
@@ -509,10 +271,10 @@ export default function DocumentUploadForm() {
                   ))}
                 </datalist>
               </div>
-              <div className="upload-input-group">
-                <label className="upload-label">Subject Code *</label>
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider">Mã Môn Học *</label>
                 <input
-                  className="upload-input"
+                  className="w-full px-4 py-3 bg-white border border-slate-200 text-slate-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all placeholder-slate-600 shadow-inner"
                   name="subject_code"
                   list="subject-list"
                   required
@@ -532,14 +294,13 @@ export default function DocumentUploadForm() {
               </div>
             </div>
 
-            {/* Hàng 3 */}
-            <div className="upload-grid">
-              <div className="upload-input-group">
-                <label className="upload-label">
-                  {selectedSubject ? "Subject Name (Môn học đã tồn tại)" : "Subject Name mới *"}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider">
+                  {selectedSubject ? "Tên Môn Học (Đã Tồn Tại)" : "Tên Môn Học Mới *"}
                 </label>
                 <input
-                  className="upload-input"
+                  className={`w-full px-4 py-3 border border-slate-200 text-slate-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-inner ${selectedSubject ? 'bg-emerald-50 border-emerald-300' : 'bg-white placeholder-slate-600'}`}
                   name="subject_name"
                   required={!selectedSubject}
                   value={formData.subject_name}
@@ -548,101 +309,63 @@ export default function DocumentUploadForm() {
                   placeholder={selectedSubject ? "Môn học đã tồn tại" : "Nhập tên môn học mới"}
                 />
               </div>
-              <div className="upload-input-group">
-                <label className="upload-label">Document Type *</label>
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider">Loại Tài Liệu *</label>
                 <select
-                  className="upload-select"
+                  className="w-full px-4 py-3 bg-white border border-slate-200 text-slate-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-inner appearance-none"
                   name="doc_type"
                   required
                   value={formData.doc_type}
                   onChange={handleInputChange}
                 >
-                  <option value="lecture">Lecture (Bài giảng)</option>
-                  <option value="exercise">Exercise (Bài tập)</option>
-                  <option value="exam">Exam (Đề thi)</option>
-                  <option value="other">Other (Khác)</option>
+                  <option value="lecture" className="bg-white">Bài giảng (Lecture)</option>
+                  <option value="exercise" className="bg-white">Bài tập (Exercise)</option>
+                  <option value="exam" className="bg-white">Đề thi (Exam)</option>
+                  <option value="other" className="bg-white">Khác (Other)</option>
                 </select>
               </div>
             </div>
 
-            {/* Nút Submit */}
-            <button type="submit" className="upload-button" disabled={loading}>
+            <button
+              type="submit"
+              className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl transition duration-300 shadow-[0_0_20px_rgba(99,102,241,0.3)] hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] mt-4 flex items-center justify-center gap-2"
+              disabled={loading}
+            >
               {loading ? (
                 <>
-                  <span className="upload-spinner"></span>
+                  <Loader2 className="w-5 h-5 animate-spin" />
                   Đang xử lý...
                 </>
               ) : (
-                "Upload Tài Liệu"
+                <>
+                  <Upload className="w-5 h-5" />
+                  Upload Tài Liệu
+                </>
               )}
             </button>
           </form>
 
-          {/* Khu vực hiển thị thông báo lỗi / thành công */}
+          {/* Alerts */}
           {error && (
-            <div className="upload-alert error">
-              <strong>{result ? "Lỗi tạo Flashcard/Quiz" : "Lỗi Upload"}</strong>
-              {error}
+            <div className="mt-6 p-4 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-3">
+              <AlertCircle className="w-6 h-6 text-rose-600 shrink-0 mt-0.5" />
+              <div>
+                <strong className="block text-rose-600 font-semibold mb-1">Lỗi Upload</strong>
+                <p className="text-rose-300/80 text-sm">{error}</p>
+              </div>
             </div>
           )}
 
           {result && (
-            <div className="upload-alert success">
-              <strong>Thành công!</strong>
-              {result.message} <br />
-              <span style={{ fontSize: "12px", opacity: 0.8 }}>
-                Mã tài liệu (ID): {result.document_id}
-              </span>
-              {result.ai_generated ? (
-                <div style={{ marginTop: "12px", padding: "12px", backgroundColor: "#ecfdf5", borderRadius: "8px", border: "1px solid #a7f3d0" }}>
-                  <strong style={{ fontSize: "14px", color: "#065f46" }}>🤖 AI đã tự động tạo:</strong>
-                  <div style={{ marginTop: "8px", display: "flex", gap: "12px", flexWrap: "wrap" }}>
-                    {result.ai_generated.flashcard_set_id && (
-                      <a
-                        href={`/flashcards/${result.ai_generated.flashcard_set_id}`}
-                        style={{
-                          display: "inline-flex", alignItems: "center", gap: "6px",
-                          padding: "8px 16px", backgroundColor: "#2563eb", color: "#fff",
-                          borderRadius: "6px", textDecoration: "none", fontSize: "13px", fontWeight: 600
-                        }}
-                      >
-                        📇 Xem Flashcard
-                      </a>
-                    )}
-                    {result.ai_generated.quiz_id && (
-                      <a
-                        href={`/quizzes/${result.ai_generated.quiz_id}`}
-                        style={{
-                          display: "inline-flex", alignItems: "center", gap: "6px",
-                          padding: "8px 16px", backgroundColor: "#7c3aed", color: "#fff",
-                          borderRadius: "6px", textDecoration: "none", fontSize: "13px", fontWeight: 600
-                        }}
-                      >
-                        📝 Xem Quiz
-                      </a>
-                    )}
-                  </div>
+            <div className="mt-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-start gap-3">
+              <CheckCircle className="w-6 h-6 text-emerald-600 shrink-0 mt-0.5" />
+              <div>
+                <strong className="block text-emerald-600 font-semibold mb-1">Thành công!</strong>
+                <p className="text-emerald-700/80 text-sm mb-2">{result.message}</p>
+                <div className="inline-flex px-3 py-1 bg-emerald-500/20 text-emerald-700 rounded-lg text-xs font-mono">
+                  Mã tài liệu: #{result.document_id}
                 </div>
-              ) : (
-                <div style={{ marginTop: "12px", padding: "12px", backgroundColor: "#fffbeb", borderRadius: "8px", border: "1px solid #fcd34d" }}>
-                  <strong style={{ fontSize: "14px", color: "#92400e" }}>⚠️ AI chưa tạo được flashcard/quiz</strong>
-                  <p style={{ fontSize: "12px", color: "#78350f", margin: "4px 0 8px 0" }}>
-                    AI đang bận (rate limit). Bấm nút bên dưới để thử lại.
-                  </p>
-                  <button
-                    onClick={handleRetryAI}
-                    disabled={aiLoading}
-                    style={{
-                      display: "inline-flex", alignItems: "center", gap: "6px",
-                      padding: "8px 16px", backgroundColor: aiLoading ? "#9ca3af" : "#f59e0b", color: "#fff",
-                      borderRadius: "6px", border: "none", fontSize: "13px", fontWeight: 600,
-                      cursor: aiLoading ? "not-allowed" : "pointer"
-                    }}
-                  >
-                    {aiLoading ? "⏳ Đang tạo..." : "🔄 Thử tạo Flashcard & Quiz"}
-                  </button>
-                </div>
-              )}
+              </div>
             </div>
           )}
         </div>

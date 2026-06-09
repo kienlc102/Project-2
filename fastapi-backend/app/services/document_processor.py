@@ -45,6 +45,28 @@ def extract_text(file_bytes: bytes, mime_type: str) -> str:
     
     return text.strip()
 
+import re
+
+def clean_ocr_text(text: str) -> str:
+    """
+    Cleans noisy OCR text to prevent LLM context breaking.
+    """
+    if not text:
+        return text
+    # 1. Fix broken words at the end of lines (e.g., "word-\n")
+    text = re.sub(r'(\w+)-\n(\w+)', r'\1\2', text)
+    
+    # 2. Remove arbitrary single line breaks within sentences (keep double \n\n)
+    text = re.sub(r'(?<!\n)\n(?!\n)', ' ', text)
+    
+    # 3. Remove repeating page numbers (e.g., "Page 12", "Trang 5")
+    text = re.sub(r'(?i)\b(Page|Trang)\s*\d+\b', '', text)
+    
+    # 4. Collapse multiple spaces into one
+    text = re.sub(r' +', ' ', text)
+    
+    return text.strip()
+
 def chunk_document(text: str, chunk_size: int = 500, chunk_overlap: int = 50) -> list[str]:
     """
     Chia nhỏ văn bản thông minh bằng LangChain.

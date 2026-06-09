@@ -1,40 +1,26 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { getToken, removeToken } from '@/lib/auth';
 import {
-  LogIn,
-  LogOut,
-  UserPlus,
-  User,
   Layers,
   ClipboardList,
   BookOpen,
-  GraduationCap,
   ArrowRight,
   Sparkles,
   Search,
+  Zap,
+  Shield,
+  Globe,
+  User,
+  GraduationCap,
+  MessageSquare
 } from 'lucide-react';
 
 export default function HomePage() {
   const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [keyword, setKeyword] = useState('');
-
-  useEffect(() => {
-    const token = getToken();
-    setIsAuthenticated(!!token);
-    setLoading(false);
-  }, []);
-
-  const handleLogout = () => {
-    removeToken();
-    setIsAuthenticated(false);
-    router.push('/login');
-  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,224 +29,158 @@ export default function HomePage() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-gray-600">Đang tải...</div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      {/* Navigation */}
-      <nav className="bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-30">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <GraduationCap className="w-7 h-7 text-blue-600" />
-            <span className="text-xl font-bold text-gray-900">EduLearn</span>
-          </Link>
-
-          <div className="flex items-center gap-3">
-            {isAuthenticated ? (
-              <>
-                <Link
-                  href="/account"
-                  className="flex items-center gap-1.5 px-3 py-2 text-gray-600 hover:text-gray-900 transition text-sm"
-                >
-                  <User className="w-4 h-4" />
-                  Hồ sơ
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-1.5 px-3 py-2 text-red-600 hover:text-red-700 transition text-sm"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Đăng xuất
-                </button>
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/login"
-                  className="px-4 py-2 text-gray-600 hover:text-gray-900 transition text-sm font-medium"
-                >
-                  Đăng nhập
-                </Link>
-                <Link
-                  href="/signup"
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition text-sm font-medium"
-                >
-                  Đăng ký
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen text-slate-900 font-sans selection:bg-indigo-500/30 overflow-hidden relative">
+      {/* Background Orbs */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-600/20 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-fuchsia-600/20 blur-[120px] pointer-events-none" />
 
       {/* Hero Section */}
-      <section className="max-w-6xl mx-auto px-4 pt-16 pb-8 text-center">
-        <div className="inline-flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-sm font-medium mb-6">
-          <Sparkles className="w-4 h-4" />
-          Nền tảng học tập thông minh
+      <section className="relative pt-16 pb-20 px-6 max-w-7xl mx-auto text-center z-10">
+        <div className="inline-flex items-center gap-2 bg-indigo-50 border border-indigo-200 text-indigo-700 px-4 py-2 rounded-full text-sm font-semibold mb-8 backdrop-blur-md">
+          <Sparkles className="w-4 h-4 text-indigo-600" />
+          Kỷ nguyên học tập kỹ thuật số mới
         </div>
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 leading-tight">
-          Học hiệu quả hơn với
-          <br />
-          <span className="text-blue-600">EduLearn</span>
+
+        <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 mb-6 tracking-tight leading-tight">
+          Học tập thông minh <br />
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-fuchsia-400">
+            hiệu quả vượt trội
+          </span>
         </h1>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
-          Tạo flashcard, làm quiz và theo dõi tiến trình học tập của bạn. Chia sẻ tài liệu với bạn bè và cùng nhau tiến bộ.
+
+        <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed">
+          Nền tảng tối ưu giúp bạn số hóa tài liệu, tạo flashcard tự động và luyện tập trắc nghiệm thông minh chỉ với vài cú click.
         </p>
 
         {/* Search Bar */}
-        <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-10 relative">
-          <div className="relative flex items-center w-full h-14 rounded-2xl focus-within:shadow-xl bg-white overflow-hidden border border-gray-200 transition-all">
-            <div className="grid place-items-center h-full w-14 text-gray-400">
+        <form onSubmit={handleSearch} className="max-w-3xl mx-auto mb-14 relative group">
+          <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-500"></div>
+          <div className="relative flex items-center w-full h-16 rounded-2xl bg-white border border-slate-200 overflow-hidden transition-all shadow-2xl">
+            <div className="pl-6 pr-4 text-slate-500">
               <Search className="h-6 w-6" />
             </div>
             <input
-              className="peer h-full w-full outline-none text-base text-gray-700 pr-2 bg-transparent"
+              className="peer h-full w-full outline-none text-lg text-slate-900 bg-transparent placeholder-slate-500"
               type="text"
-              placeholder="Tìm kiếm tài liệu, flashcard, bài quiz..."
+              placeholder="Tìm kiếm môn học, tài liệu, bộ thẻ..."
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
             />
-            <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-8 h-full font-semibold transition-colors">
+            <button type="submit" className="bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white px-8 h-full font-bold transition-all duration-300">
               Tìm kiếm
             </button>
           </div>
         </form>
-
-        {!isAuthenticated && (
-          <div className="flex gap-3 justify-center mb-12">
-            <Link
-              href="/signup"
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition flex items-center gap-2"
-            >
-              Bắt đầu miễn phí
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link
-              href="/login"
-              className="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-white transition"
-            >
-              Đã có tài khoản?
-            </Link>
-          </div>
-        )}
       </section>
 
-      {/* Main Learning Tools - Centered Cards */}
-      <section className="max-w-4xl mx-auto px-4 pb-16">
-        <div className="grid md:grid-cols-3 gap-6">
-          {/* Flashcards Card */}
-          <Link
-            href="/flashcards"
-            className="group relative bg-white rounded-2xl shadow-sm hover:shadow-xl border border-gray-100 p-8 transition-all duration-300 hover:-translate-y-1"
-          >
-            <div className="w-14 h-14 bg-indigo-100 rounded-xl flex items-center justify-center mb-5 group-hover:bg-indigo-200 transition">
-              <Layers className="w-7 h-7 text-indigo-600" />
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Flashcards</h3>
-            <p className="text-gray-600 mb-4">
-              Tạo bộ thẻ ghi nhớ với hình ảnh, học và ôn tập hiệu quả. Chia sẻ với bạn bè để cùng học.
-            </p>
-            <div className="flex items-center gap-1 text-indigo-600 font-medium text-sm group-hover:gap-2 transition-all">
-              Khám phá Flashcards
-              <ArrowRight className="w-4 h-4" />
-            </div>
-          </Link>
-
-          {/* Quiz Card */}
-          <Link
-            href="/quizzes"
-            className="group relative bg-white rounded-2xl shadow-sm hover:shadow-xl border border-gray-100 p-8 transition-all duration-300 hover:-translate-y-1"
-          >
-            <div className="w-14 h-14 bg-purple-100 rounded-xl flex items-center justify-center mb-5 group-hover:bg-purple-200 transition">
-              <ClipboardList className="w-7 h-7 text-purple-600" />
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Quiz</h3>
-            <p className="text-gray-600 mb-4">
-              Tạo bài kiểm tra với nhiều loại câu hỏi, chấm điểm tự động và xem analytics chi tiết.
-            </p>
-            <div className="flex items-center gap-1 text-purple-600 font-medium text-sm group-hover:gap-2 transition-all">
-              Khám phá Quiz
-              <ArrowRight className="w-4 h-4" />
-            </div>
-          </Link>
-
-          {/* Document Upload Card */}
-          <Link
-            href="/document"
-            className="group relative bg-white rounded-2xl shadow-sm hover:shadow-xl border border-gray-100 p-8 transition-all duration-300 hover:-translate-y-1"
-          >
-            <div className="w-14 h-14 bg-sky-100 rounded-xl flex items-center justify-center mb-5 group-hover:bg-sky-200 transition">
-              <BookOpen className="w-7 h-7 text-sky-600" />
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Tài liệu</h3>
-            <p className="text-gray-600 mb-4">
-              Tải tài liệu học tập lên, xử lý OCR và lưu trữ để tra cứu nhanh sau này.
-            </p>
-            <div className="flex items-center gap-1 text-sky-600 font-medium text-sm group-hover:gap-2 transition-all">
-              Tải tài liệu lên
-              <ArrowRight className="w-4 h-4" />
-            </div>
-          </Link>
-
-          {/* Subject Card */}
-          <Link
-            href="/subject"
-            className="group relative bg-white rounded-2xl shadow-sm hover:shadow-xl border border-gray-100 p-8 transition-all duration-300 hover:-translate-y-1"
-          >
-            <div className="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center mb-5 group-hover:bg-green-200 transition">
-              <GraduationCap className="w-7 h-7 text-green-600" />
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Môn học</h3>
-            <p className="text-gray-600 mb-4">
-              Khám phá các môn học được quan tâm nhiều nhất.
-            </p>
-            <div className="flex items-center gap-1 text-green-600 font-medium text-sm group-hover:gap-2 transition-all">
-              Khám phá Môn học
-              <ArrowRight className="w-4 h-4" />
-            </div>
-          </Link>
+      {/* Main Features Grid */}
+      <section className="max-w-7xl mx-auto px-6 pb-24 relative z-10">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+          {[
+            {
+              href: '/flashcards',
+              icon: Layers,
+              title: 'Flashcards',
+              desc: 'Ghi nhớ siêu tốc với bộ thẻ thông minh, lặp lại ngắt quãng.',
+              color: 'from-indigo-500 to-blue-500',
+              glow: 'group-hover:shadow-indigo-500/20'
+            },
+            {
+              href: '/quizzes',
+              icon: ClipboardList,
+              title: 'Quizzes',
+              desc: 'Kiểm tra kiến thức với ngân hàng câu hỏi phong phú, chấm điểm tức thì.',
+              color: 'from-purple-500 to-fuchsia-500',
+              glow: 'group-hover:shadow-purple-500/20'
+            },
+            {
+              href: '/document',
+              icon: BookOpen,
+              title: 'Tài liệu & OCR',
+              desc: 'Số hóa tài liệu giấy, trích xuất văn bản từ hình ảnh tự động.',
+              color: 'from-emerald-500 to-teal-500',
+              glow: 'group-hover:shadow-emerald-500/20'
+            },
+            {
+              href: '/subject',
+              icon: Globe,
+              title: 'Khám phá',
+              desc: 'Tham gia không gian tri thức đa dạng với hàng ngàn môn học.',
+              color: 'from-rose-500 to-orange-500',
+              glow: 'group-hover:shadow-rose-500/20'
+            },
+            {
+              href: '/forum',
+              icon: MessageSquare,
+              title: 'Diễn đàn',
+              desc: 'Đặt câu hỏi, thảo luận, chia sẻ kiến thức cùng cộng đồng.',
+              color: 'from-cyan-500 to-teal-500',
+              glow: 'group-hover:shadow-cyan-500/20'
+            }
+          ].map((item, idx) => (
+            <Link
+              key={idx}
+              href={item.href}
+              className={`group relative bg-white backdrop-blur-sm rounded-3xl border border-slate-200 p-8 transition-all duration-500 hover:-translate-y-2 hover:bg-white/[0.08] shadow-lg ${item.glow}`}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-3xl" />
+              <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-6 shadow-lg transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
+                <item.icon className="w-7 h-7 text-slate-900" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-3">{item.title}</h3>
+              <p className="text-slate-600 mb-6 line-clamp-3 text-sm leading-relaxed">
+                {item.desc}
+              </p>
+              <div className="flex items-center gap-2 text-slate-900 font-medium text-sm opacity-70 group-hover:opacity-100 group-hover:gap-3 transition-all">
+                Khám phá ngay
+                <ArrowRight className="w-4 h-4" />
+              </div>
+            </Link>
+          ))}
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="bg-white border-t border-gray-100">
-        <div className="max-w-6xl mx-auto px-4 py-16">
-          <h2 className="text-2xl font-bold text-gray-900 text-center mb-10">
-            Tại sao chọn EduLearn?
-          </h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <BookOpen className="w-6 h-6 text-blue-600" />
+      {/* Why Choose Us */}
+      <section className="border-t border-slate-200 bg-slate-50 relative z-10 overflow-hidden">
+        {/* Subtle grid background */}
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay"></div>
+        <div className="max-w-7xl mx-auto px-6 py-24 relative z-10">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+              Hệ sinh thái học tập <span className="text-indigo-600">toàn diện</span>
+            </h2>
+            <p className="text-slate-600 max-w-2xl mx-auto">Tích hợp các công cụ tiên tiến nhất để tối ưu hóa quá trình tiếp thu kiến thức của bạn.</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-10">
+            <div className="flex flex-col items-center text-center p-6">
+              <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center mb-6 border border-blue-200">
+                <Zap className="w-8 h-8 text-blue-600" />
               </div>
-              <h4 className="font-semibold text-gray-900 mb-2">Học mọi lúc, mọi nơi</h4>
-              <p className="text-sm text-gray-600">
-                Truy cập tài liệu học tập từ bất kỳ thiết bị nào, mọi lúc mọi nơi.
+              <h4 className="text-xl font-bold text-slate-900 mb-3">Tốc độ & Hiệu quả</h4>
+              <p className="text-slate-600 leading-relaxed">
+                Giao diện mượt mà, phản hồi tức thì giúp bạn duy trì sự tập trung cao độ trong suốt phiên học.
               </p>
             </div>
-            <div className="text-center">
-              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <Sparkles className="w-6 h-6 text-green-600" />
+
+            <div className="flex flex-col items-center text-center p-6">
+              <div className="w-16 h-16 rounded-full bg-purple-50 flex items-center justify-center mb-6 border border-purple-200">
+                <Shield className="w-8 h-8 text-purple-600" />
               </div>
-              <h4 className="font-semibold text-gray-900 mb-2">Chấm điểm tự động</h4>
-              <p className="text-sm text-gray-600">
-                Quiz được chấm điểm ngay lập tức với analytics chi tiết cho từng câu hỏi.
+              <h4 className="text-xl font-bold text-slate-900 mb-3">Lưu trữ An toàn</h4>
+              <p className="text-slate-600 leading-relaxed">
+                Mọi dữ liệu học tập, tài liệu của bạn đều được mã hóa và bảo mật an toàn trên nền tảng đám mây.
               </p>
             </div>
-            <div className="text-center">
-              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <User className="w-6 h-6 text-purple-600" />
+
+            <div className="flex flex-col items-center text-center p-6">
+              <div className="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mb-6 border border-emerald-200">
+                <User className="w-8 h-8 text-emerald-600" />
               </div>
-              <h4 className="font-semibold text-gray-900 mb-2">Chia sẻ & cộng tác</h4>
-              <p className="text-sm text-gray-600">
-                Chia sẻ flashcard và quiz với bạn bè, học nhóm hiệu quả hơn.
+              <h4 className="text-xl font-bold text-slate-900 mb-3">Học nhóm dễ dàng</h4>
+              <p className="text-slate-600 leading-relaxed">
+                Chia sẻ không giới hạn bộ tài liệu, quiz cho bạn bè để cùng nhau thảo luận và thăng tiến.
               </p>
             </div>
           </div>
@@ -268,9 +188,15 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-50 border-t">
-        <div className="max-w-6xl mx-auto px-4 py-8 text-center text-gray-500 text-sm">
-          <p>&copy; 2026 EduLearn. All rights reserved.</p>
+      <footer className="bg-slate-100 border-t border-slate-200 pt-16 pb-8 relative z-10">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-2 opacity-80 hover:opacity-100 transition">
+            <GraduationCap className="w-6 h-6 text-indigo-500" />
+            <span className="text-xl font-bold text-slate-900">EduLearn</span>
+          </div>
+          <p className="text-slate-500 text-sm">
+            &copy; {new Date().getFullYear()} EduLearn. Kiến tạo tương lai tri thức.
+          </p>
         </div>
       </footer>
     </div>

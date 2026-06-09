@@ -1,5 +1,4 @@
 const API_URL = 'http://127.0.0.1:8000/api/v1';
-const AI_SERVICE_URL = 'http://127.0.0.1:5004/api';
 
 export interface UploadDocumentResult {
   status: number;
@@ -56,15 +55,4 @@ export const getSubjects = async (
     return [];
   }
   return response.json();
-};
-
-export const generateAIFromDocument = async (documentId: string): Promise<{
-  ok: boolean;
-  data: any;
-}> => {
-  const response = await fetch(`${AI_SERVICE_URL}/generate/${documentId}`, {
-    method: 'POST',
-  });
-  const data = await response.json();
-  return { ok: response.ok, data };
 };

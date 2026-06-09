@@ -78,7 +78,8 @@ export default function PDFViewer({ docId, onDownload }: PDFViewerProps) {
           <button
             onClick={() => setPageNumber((prev) => Math.max(1, prev - 1))}
             disabled={pageNumber <= 1}
-            className="px-3 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-50"
+            className="px-4 py-1.5 text-sm font-semibold bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors disabled:opacity-40"
+
           >
             Trang trước
           </button>
@@ -88,7 +89,7 @@ export default function PDFViewer({ docId, onDownload }: PDFViewerProps) {
           <button
             onClick={() => setPageNumber((prev) => Math.min(numPages, prev + 1))}
             disabled={pageNumber >= numPages}
-            className="px-3 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-50"
+            className="px-4 py-1.5 text-sm font-semibold bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors disabled:opacity-40"
           >
             Trang sau
           </button>
